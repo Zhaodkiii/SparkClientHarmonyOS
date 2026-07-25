@@ -1,0 +1,81 @@
+{
+  "app": {
+    "signingConfigs": [
+      {
+        "name": "default",
+        "type": "HarmonyOS",
+        "material": {
+          "certpath": "/Users/hua/.ohos/config/default_SparkClientHarmonyOS_mwMATGQ8Lp4HgYqMw22pUCkFok155zm0-aNXyo5gfqk=.cer",
+          "keyAlias": "debugKey",
+          "keyPassword": "0000001A1ADC00560C6012F7DB3020FE4958B439A64D1CDD62B81DA24EB035327B33F58F8ADD33A4AC84",
+          "profile": "/Users/hua/.ohos/config/default_SparkClientHarmonyOS_mwMATGQ8Lp4HgYqMw22pUCkFok155zm0-aNXyo5gfqk=.p7b",
+          "signAlg": "SHA256withECDSA",
+          "storeFile": "/Users/hua/.ohos/config/default_SparkClientHarmonyOS_mwMATGQ8Lp4HgYqMw22pUCkFok155zm0-aNXyo5gfqk=.p12",
+          "storePassword": "0000001A804C0C4808817D26FDC46241394DFE1769FF055779187BC59B1EE2C07EAF6F03E43F1B72B7AF"
+        }
+      },
+      {
+        "name": "appstore",
+        "type": "HarmonyOS",
+        "material": {
+          "storeFile": "/Users/hua/Downloads/新证书/lookHealth.p12",
+          "storePassword": "00000019E6D2C71D8499CB9417A4410BB73B300340DDE7758F3C05BA16340D5B02837CF1C86016EC0E",
+          "keyAlias": "lookHealth",
+          "keyPassword": "000000191EF59AB1EA71CAD6AB1CAD2EF616495E7A78ED94DFDADED6DF21E7F423AD002C3C37D7D69C",
+          "signAlg": "SHA256withECDSA",
+          "profile": "/Users/hua/Downloads/新证书/lookHealthRelease.p7b",
+          "certpath": "/Users/hua/Downloads/新证书/lookHealth.csr"
+        }
+      }
+    ],
+    "products": [
+      {
+        "name": "default",
+        "signingConfig": "default",
+        "targetSdkVersion": "6.1.1(24)",
+        "compatibleSdkVersion": "6.0.0(20)",
+        "runtimeOS": "HarmonyOS",
+        "buildOption": {
+          "strictMode": {
+            "caseSensitiveCheck": true,
+            "useNormalizedOHMUrl": true
+          }
+        }
+      }
+    ],
+    "buildModeSet": [
+      {
+        "name": "release"
+      },
+      {
+        "name": "debug"
+      }
+    ]
+  },
+  "modules": [
+    {
+      "name": "entry",
+      "srcPath": "./entry",
+      "targets": [
+        {
+          "name": "default",
+          "applyToProducts": [
+            "default"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "markdown",
+      "srcPath": "./entry/third_party/lv-markdown-in",
+      "targets": [
+        {
+          "name": "default",
+          "applyToProducts": [
+            "default"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+# Dependencies
+/node_modules
+**/oh_modules
+
+# Local machine config
+local.properties
+**/.deveco
+
+# IDE
+/.idea
+/.clangd
+/.clang-format
+/.clang-tidy
+/.appanalyzer
+
+# Build outputs
+**/build
+/.hvigor
+.cxx
+**/.test
+**/.preview
+*.hap
+*.hsp
+*.app
+
+# Signing materials (private keys & certificates)
+/signing/
+
+# macOS
+.DS_Store
+
+# Reference templates (not part of this project)
+开发详细技术文档/agc-template-market-harmonyos-demos-main/

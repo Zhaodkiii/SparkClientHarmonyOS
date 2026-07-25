@@ -1,0 +1,1296 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "小鲸客户端入口模块"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "小鲸主入口"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "小鲸"
+    },
+    {
+      "name": "permission_internet_reason",
+      "value": "用于访问 Support 后台 API、鉴权刷新与文件元数据同步"
+    },
+    {
+      "name": "permission_network_info_reason",
+      "value": "用于检测网络连接状态并在网络恢复后安全重试请求"
+    },
+    {
+      "name": "permission_store_persistent_data_reason",
+      "value": "用于在应用卸载后仍保留安装级设备标识与登录密钥，保障账号连续性"
+    },
+    {
+      "name": "home_title",
+      "value": "首页"
+    },
+    {
+      "name": "home_welcome",
+      "value": "点按继续"
+    },
+    {
+      "name": "home_loading",
+      "value": "正在加载…"
+    },
+    {
+      "name": "home_refresh",
+      "value": "刷新"
+    },
+    {
+      "name": "home_members_section",
+      "value": "家庭成员"
+    },
+    {
+      "name": "home_members_empty",
+      "value": "暂无成员，请先添加家庭成员"
+    },
+    {
+      "name": "home_medical_section",
+      "value": "医疗信息"
+    },
+    {
+      "name": "home_medical_family_cabinet",
+      "value": "家庭药箱"
+    },
+    {
+      "name": "home_medical_ai_report",
+      "value": "AI 智能整理报告"
+    },
+    {
+      "name": "home_module_maintenance",
+      "value": "当前成员尚未开启医疗或营养模块"
+    },
+    {
+      "name": "home_module_maintenance_action",
+      "value": "去开通模块"
+    },
+    {
+      "name": "home_members_add",
+      "value": "添加家庭成员"
+    },
+    {
+      "name": "common_action_confirm",
+      "value": "确定"
+    },
+    {
+      "name": "common_error_unknown",
+      "value": "发生未知错误，请稍后重试"
+    },
+    {
+      "name": "common_error_request_failed",
+      "value": "请求失败，请稍后重试"
+    },
+    {
+      "name": "api_error_unknown",
+      "value": "操作失败，请稍后重试。"
+    },
+    {
+      "name": "error_auth_expired",
+      "value": "登录状态已失效，请重新登录"
+    },
+    {
+      "name": "error_too_many_requests",
+      "value": "请求过于频繁，请稍后再试"
+    },
+    {
+      "name": "error_service_unavailable",
+      "value": "服务暂时不可用，请稍后重试"
+    },
+    {
+      "name": "nav_launch_loading",
+      "value": "正在启动…"
+    },
+    {
+      "name": "tab_home",
+      "value": "首页"
+    },
+    {
+      "name": "tab_camera",
+      "value": "第二相机"
+    },
+    {
+      "name": "tab_chat",
+      "value": "对话"
+    },
+    {
+      "name": "tab_settings",
+      "value": "设置"
+    },
+    {
+      "name": "camera_placeholder_desc",
+      "value": "第二相机能力即将接入，当前为占位页"
+    },
+    {
+      "name": "auth_login_title",
+      "value": "登录小鲸"
+    },
+    {
+      "name": "auth_login_subtitle",
+      "value": "可使用华为账号、手机号或游客模式登录"
+    },
+    {
+      "name": "auth_device_login",
+      "value": "设备游客登录"
+    },
+    {
+      "name": "auth_huawei_login",
+      "value": "通过华为账号登录"
+    },
+    {
+      "name": "auth_or_divider",
+      "value": "或"
+    },
+    {
+      "name": "auth_huawei_coming_soon",
+      "value": "即将支持"
+    },
+    {
+      "name": "auth_phone_login",
+      "value": "手机号登录"
+    },
+    {
+      "name": "auth_phone_title",
+      "value": "手机号登录"
+    },
+    {
+      "name": "auth_phone_placeholder_desc",
+      "value": "输入手机号获取验证码"
+    },
+    {
+      "name": "auth_continue_otp",
+      "value": "继续（OTP 占位）"
+    },
+    {
+      "name": "auth_otp_title",
+      "value": "输入验证码"
+    },
+    {
+      "name": "auth_otp_placeholder_desc",
+      "value": "请输入短信验证码"
+    },
+    {
+      "name": "auth_upgrade_title",
+      "value": "升级登录"
+    },
+    {
+      "name": "settings_account",
+      "value": "账号管理"
+    },
+    {
+      "name": "settings_ai",
+      "value": "AI 设置"
+    },
+    {
+      "name": "ai_settings_scene_title",
+      "value": "AI 场景配置"
+    },
+    {
+      "name": "ai_settings_section_model",
+      "value": "模型设置"
+    },
+    {
+      "name": "ai_settings_section_tools",
+      "value": "工具/检索/知识"
+    },
+    {
+      "name": "ai_settings_hub_providers_sub",
+      "value": "厂商密钥与端点"
+    },
+    {
+      "name": "ai_settings_hub_models_sub",
+      "value": "模型目录与能力开关"
+    },
+    {
+      "name": "ai_settings_hub_preferences_sub",
+      "value": "按场景配置本地或 Pro"
+    },
+    {
+      "name": "ai_settings_hub_tasks_sub",
+      "value": "维护本地小任务并关联模型"
+    },
+    {
+      "name": "ai_settings_retry",
+      "value": "重试"
+    },
+    {
+      "name": "ai_settings_nav_error",
+      "value": "页面错误"
+    },
+    {
+      "name": "ai_settings_route_missing",
+      "value": "找不到目标页面，请返回重试"
+    },
+    {
+      "name": "ai_settings_loading",
+      "value": "加载中…"
+    },
+    {
+      "name": "ai_settings_sync_state",
+      "value": "同步状态"
+    },
+    {
+      "name": "ai_settings_unsaved",
+      "value": "有未保存修改"
+    },
+    {
+      "name": "ai_settings_refresh",
+      "value": "刷新 Pro 配置"
+    },
+    {
+      "name": "ai_settings_discard",
+      "value": "放弃"
+    },
+    {
+      "name": "ai_settings_save",
+      "value": "保存"
+    },
+    {
+      "name": "ai_settings_hub_providers",
+      "value": "模型密钥"
+    },
+    {
+      "name": "ai_settings_hub_models",
+      "value": "模型"
+    },
+    {
+      "name": "ai_settings_hub_preferences",
+      "value": "默认模型配置"
+    },
+    {
+      "name": "ai_settings_hub_tasks",
+      "value": "小任务"
+    },
+    {
+      "name": "ai_settings_hub_runtime",
+      "value": "Runtime 联调"
+    },
+    {
+      "name": "ai_settings_hub_runtime_sub",
+      "value": "验证流式推理、取消与场景选模"
+    },
+    {
+      "name": "ai_settings_runtime_hint",
+      "value": "聊天走 ChatOrchestrator；「直连」走报告场景 AIRuntimeService。均不得绕过统一入口。"
+    },
+    {
+      "name": "ai_settings_runtime_placeholder",
+      "value": "输入提示词"
+    },
+    {
+      "name": "ai_settings_runtime_send",
+      "value": "发送（聊天）"
+    },
+    {
+      "name": "ai_settings_runtime_cancel",
+      "value": "取消"
+    },
+    {
+      "name": "ai_settings_runtime_direct",
+      "value": "直连报告场景"
+    },
+    {
+      "name": "ai_settings_runtime_reasoning",
+      "value": "推理过程"
+    },
+    {
+      "name": "ai_settings_runtime_empty",
+      "value": "输出将显示在这里"
+    },
+    {
+      "name": "ai_settings_provider_add",
+      "value": "新增自定义供应商"
+    },
+    {
+      "name": "ai_settings_providers_add_nav_title",
+      "value": "新增自定义供应商"
+    },
+    {
+      "name": "ai_settings_providers_add_field_name",
+      "value": "供应商名称"
+    },
+    {
+      "name": "ai_settings_providers_add_action_append_completion_path",
+      "value": "补全 /v1/chat/completions"
+    },
+    {
+      "name": "ai_settings_providers_add_error_invalid_url_prefix",
+      "value": "请求地址必须以 http:// 或 https:// 开头"
+    },
+    {
+      "name": "ai_settings_provider_url",
+      "value": "请求 URL"
+    },
+    {
+      "name": "ai_settings_provider_key",
+      "value": "API Key"
+    },
+    {
+      "name": "ai_settings_provider_key_confirm",
+      "value": "确认写入 Key"
+    },
+    {
+      "name": "ai_settings_provider_test_model",
+      "value": "连通性测试模型"
+    },
+    {
+      "name": "ai_settings_provider_test",
+      "value": "连通性测试"
+    },
+    {
+      "name": "ai_settings_provider_privacy",
+      "value": "隐私政策"
+    },
+    {
+      "name": "ai_settings_provider_company",
+      "value": "厂商"
+    },
+    {
+      "name": "ai_settings_provider_name",
+      "value": "名称"
+    },
+    {
+      "name": "ai_settings_trial_title",
+      "value": "Pro 试用"
+    },
+    {
+      "name": "ai_settings_trial_apply",
+      "value": "申请试用"
+    },
+    {
+      "name": "ai_settings_providers_trial_card_title",
+      "value": "模型密钥 / 试用权限"
+    },
+    {
+      "name": "ai_settings_providers_trial_card_subtitle",
+      "value": "配置 API Key 后可启用对应模型能力"
+    },
+    {
+      "name": "ai_settings_providers_trial_status_active",
+      "value": "试用已开通"
+    },
+    {
+      "name": "ai_settings_providers_trial_status_remaining_days",
+      "value": "剩余 {days} 天"
+    },
+    {
+      "name": "ai_settings_providers_trial_status_pending",
+      "value": "申请审核中"
+    },
+    {
+      "name": "ai_settings_providers_trial_status_rejected",
+      "value": "申请未通过，可再次申请"
+    },
+    {
+      "name": "ai_settings_providers_trial_status_expired",
+      "value": "试用已过期，可重新申请"
+    },
+    {
+      "name": "ai_settings_providers_trial_status_default",
+      "value": "新用户可申请试用"
+    },
+    {
+      "name": "ai_settings_providers_trial_consent_hint",
+      "value": "提交试用申请前，请确认已阅读相关厂商隐私说明。"
+    },
+    {
+      "name": "ai_settings_providers_trial_consent_toggle",
+      "value": "我已阅读并同意相关隐私条款"
+    },
+    {
+      "name": "ai_settings_providers_trial_error_need_consent",
+      "value": "请先勾选隐私同意后再提交申请"
+    },
+    {
+      "name": "ai_settings_providers_trial_action_active",
+      "value": "已开通"
+    },
+    {
+      "name": "ai_settings_providers_trial_action_pending",
+      "value": "审核中"
+    },
+    {
+      "name": "ai_settings_providers_trial_action_reapply",
+      "value": "再次申请"
+    },
+    {
+      "name": "ai_settings_providers_trial_action_apply",
+      "value": "提交申请"
+    },
+    {
+      "name": "ai_settings_providers_editor_alert_notice_title",
+      "value": "提示"
+    },
+    {
+      "name": "common_save",
+      "value": "保存"
+    },
+    {
+      "name": "ai_settings_providers_editor_nav_title",
+      "value": "编辑密钥"
+    },
+    {
+      "name": "ai_settings_providers_editor_field_request_url",
+      "value": "请求地址"
+    },
+    {
+      "name": "ai_settings_providers_editor_key_placeholder",
+      "value": "输入新 Key（不回显）"
+    },
+    {
+      "name": "ai_settings_providers_editor_privacy_view_policy",
+      "value": "查看隐私政策"
+    },
+    {
+      "name": "ai_settings_providers_editor_privacy_accept",
+      "value": "我已阅读并同意该厂商隐私政策"
+    },
+    {
+      "name": "ai_settings_providers_editor_section_models",
+      "value": "该厂商模型"
+    },
+    {
+      "name": "ai_settings_providers_editor_models_empty",
+      "value": "该厂商暂未配置在线模型"
+    },
+    {
+      "name": "ai_settings_providers_editor_model_delete",
+      "value": "删除"
+    },
+    {
+      "name": "ai_settings_providers_editor_section_api_test",
+      "value": "API 测试"
+    },
+    {
+      "name": "ai_settings_providers_editor_field_test_model",
+      "value": "测试模型"
+    },
+    {
+      "name": "ai_settings_providers_editor_action_test_api",
+      "value": "测试 API"
+    },
+    {
+      "name": "ai_settings_providers_editor_test_passed",
+      "value": "测试通过"
+    },
+    {
+      "name": "ai_settings_providers_editor_test_failed",
+      "value": "测试失败"
+    },
+    {
+      "name": "ai_settings_providers_editor_test_no_models",
+      "value": "无可用模型"
+    },
+    {
+      "name": "ai_settings_providers_editor_alert_need_api_key",
+      "value": "请先配置有效 API Key"
+    },
+    {
+      "name": "ai_settings_providers_editor_alert_no_models",
+      "value": "当前厂商无可测试模型，请先配置模型"
+    },
+    {
+      "name": "ai_settings_providers_editor_alert_test_failed",
+      "value": "连接测试失败，请检查 URL 或密钥"
+    },
+    {
+      "name": "ai_settings_providers_editor_alert_backend_network_error",
+      "value": "服务端连通性测试网络不可达。若仍失败，请检查网络、请求地址和模型名。"
+    },
+    {
+      "name": "common_close",
+      "value": "关闭"
+    },
+    {
+      "name": "ai_settings_models_management_nav_title",
+      "value": "{name} 模型"
+    },
+    {
+      "name": "ai_settings_models_management_nav_title_fallback",
+      "value": "厂商模型"
+    },
+    {
+      "name": "ai_settings_models_management_search_prompt",
+      "value": "搜索模型"
+    },
+    {
+      "name": "ai_settings_models_management_action_close",
+      "value": "关闭"
+    },
+    {
+      "name": "ai_settings_models_management_action_add",
+      "value": "添加"
+    },
+    {
+      "name": "ai_settings_models_management_alert_title",
+      "value": "提示"
+    },
+    {
+      "name": "ai_settings_models_management_section_auto_refresh",
+      "value": "自动刷新"
+    },
+    {
+      "name": "ai_settings_models_management_auto_refresh_empty_key",
+      "value": "当前厂商还没有可用的 API Key，暂时无法自动刷新远端模型列表。你仍然可以点右上角 + 手动添加模型。"
+    },
+    {
+      "name": "ai_settings_models_management_auto_refresh_enabled",
+      "value": "进入页面会自动拉取一次模型列表，也支持下拉或右上角按钮手动刷新。"
+    },
+    {
+      "name": "ai_settings_models_management_section_added",
+      "value": "已添加 ({count})"
+    },
+    {
+      "name": "ai_settings_models_management_added_empty",
+      "value": "该厂商还没有已添加模型"
+    },
+    {
+      "name": "ai_settings_models_management_added_empty_search",
+      "value": "没有匹配的已添加模型"
+    },
+    {
+      "name": "ai_settings_models_management_section_remote",
+      "value": "远端可用 ({count})"
+    },
+    {
+      "name": "ai_settings_models_management_loading",
+      "value": "正在刷新模型列表..."
+    },
+    {
+      "name": "ai_settings_models_management_remote_empty",
+      "value": "暂未获取到可用模型"
+    },
+    {
+      "name": "ai_settings_models_management_remote_empty_search",
+      "value": "没有匹配的远端模型"
+    },
+    {
+      "name": "ai_settings_models_management_remote_added",
+      "value": "已添加"
+    },
+    {
+      "name": "ai_settings_models_management_remote_footer",
+      "value": "自动刷新优先按厂商官方接口返回结果展示；如果接口不支持列出模型，仍可手动添加。"
+    },
+    {
+      "name": "ai_settings_models_online_field_api_name",
+      "value": "API 模型名"
+    },
+    {
+      "name": "ai_settings_models_online_field_api_name_prompt",
+      "value": "例如 gpt-4o-mini"
+    },
+    {
+      "name": "ai_settings_models_online_field_display_name",
+      "value": "显示名称"
+    },
+    {
+      "name": "ai_settings_models_online_field_display_name_prompt",
+      "value": "用于列表展示的名称"
+    },
+    {
+      "name": "ai_settings_models_online_field_vendor",
+      "value": "厂商"
+    },
+    {
+      "name": "ai_settings_models_online_nav_title",
+      "value": "添加在线模型"
+    },
+    {
+      "name": "ai_settings_models_online_save",
+      "value": "添加"
+    },
+    {
+      "name": "ai_settings_models_online_error_title",
+      "value": "无法添加"
+    },
+    {
+      "name": "ai_settings_models_online_err_api_name",
+      "value": "请填写 API 模型名"
+    },
+    {
+      "name": "ai_settings_models_online_err_display_name",
+      "value": "请填写显示名称"
+    },
+    {
+      "name": "ai_settings_models_online_err_vendor",
+      "value": "请选择已配置密钥的厂商"
+    },
+    {
+      "name": "ai_settings_models_online_section_basic",
+      "value": "基本信息"
+    },
+    {
+      "name": "ai_settings_models_online_section_price",
+      "value": "价格"
+    },
+    {
+      "name": "ai_settings_models_online_section_capabilities",
+      "value": "能力"
+    },
+    {
+      "name": "ai_settings_field_price_tier",
+      "value": "价格档位"
+    },
+    {
+      "name": "ai_settings_models_online_toggle_default_hidden",
+      "value": "默认隐藏"
+    },
+    {
+      "name": "ai_settings_models_online_probe_button",
+      "value": "自动模型能力探测"
+    },
+    {
+      "name": "ai_settings_models_online_probe_cost_note",
+      "value": "注意：自动模型能力探测可能产生一定 API 费用。"
+    },
+    {
+      "name": "ai_settings_models_online_probe_sheet_title",
+      "value": "能力探测结果"
+    },
+    {
+      "name": "ai_settings_models_online_toggle_supports_text",
+      "value": "支持文本"
+    },
+    {
+      "name": "ai_settings_field_supports_multimodal",
+      "value": "支持多模态"
+    },
+    {
+      "name": "ai_settings_field_supports_reasoning",
+      "value": "支持推理"
+    },
+    {
+      "name": "ai_settings_field_reasoning_controllable",
+      "value": "思考可控"
+    },
+    {
+      "name": "ai_settings_field_supports_tool_use",
+      "value": "支持工具调用"
+    },
+    {
+      "name": "ai_settings_models_online_toggle_image_gen",
+      "value": "生图"
+    },
+    {
+      "name": "ai_settings_models_online_capabilities_footer",
+      "value": "部分能力将影响该模型在场景中的可选性。"
+    },
+    {
+      "name": "common_cancel",
+      "value": "取消"
+    },
+    {
+      "name": "common_all",
+      "value": "全部"
+    },
+    {
+      "name": "common_name",
+      "value": "名称"
+    },
+    {
+      "name": "common_tools",
+      "value": "工具"
+    },
+    {
+      "name": "common_done",
+      "value": "完成"
+    },
+    {
+      "name": "ai_settings_models_filter_models",
+      "value": "模型"
+    },
+    {
+      "name": "ai_settings_models_filter_agents",
+      "value": "智能体"
+    },
+    {
+      "name": "ai_settings_models_nav_title_agents",
+      "value": "智能体"
+    },
+    {
+      "name": "ai_settings_models_search_models",
+      "value": "搜索模型"
+    },
+    {
+      "name": "ai_settings_models_search_agents",
+      "value": "搜索智能体"
+    },
+    {
+      "name": "ai_settings_models_badge_local",
+      "value": "本地"
+    },
+    {
+      "name": "ai_settings_models_capability_visual_short",
+      "value": "视觉"
+    },
+    {
+      "name": "ai_settings_models_capability_text_short",
+      "value": "文本"
+    },
+    {
+      "name": "ai_settings_models_capability_image_gen_short",
+      "value": "生图"
+    },
+    {
+      "name": "ai_settings_models_capability_voice_short",
+      "value": "语音"
+    },
+    {
+      "name": "ai_settings_models_capability_reasoning_short",
+      "value": "思考"
+    },
+    {
+      "name": "ai_settings_models_edit_nav_title",
+      "value": "编辑模型"
+    },
+    {
+      "name": "ai_settings_models_edit_section_icon",
+      "value": "图标"
+    },
+    {
+      "name": "ai_settings_models_edit_section_capabilities",
+      "value": "能力"
+    },
+    {
+      "name": "ai_settings_models_online_section_usage",
+      "value": "使用场景与工具"
+    },
+    {
+      "name": "ai_settings_models_online_field_scenarios",
+      "value": "使用场景"
+    },
+    {
+      "name": "ai_settings_models_agent_related_tasks",
+      "value": "关联小任务"
+    },
+    {
+      "name": "ai_settings_model_add",
+      "value": "添加在线模型"
+    },
+    {
+      "name": "ai_settings_model_agent_add",
+      "value": "新建智能体"
+    },
+    {
+      "name": "ai_settings_model_local",
+      "value": "本地模型"
+    },
+    {
+      "name": "ai_settings_local_unavailable_title",
+      "value": "本地模型即将支持"
+    },
+    {
+      "name": "ai_settings_local_unavailable_body",
+      "value": "当前可查看导入校验入口，真实 GGUF 下载与推理尚未开放。"
+    },
+    {
+      "name": "ai_settings_task_add",
+      "value": "新建小任务"
+    },
+    {
+      "name": "ai_settings_empty_providers",
+      "value": "暂无厂商，请新增自定义供应商"
+    },
+    {
+      "name": "ai_settings_empty_models",
+      "value": "暂无模型，可添加在线模型或智能体"
+    },
+    {
+      "name": "ai_settings_empty_tasks",
+      "value": "暂无本地小任务"
+    },
+    {
+      "name": "ai_settings_key_configured",
+      "value": "已配置"
+    },
+    {
+      "name": "ai_settings_key_missing",
+      "value": "未配置"
+    },
+    {
+      "name": "settings_upgrade_login",
+      "value": "升级登录"
+    },
+    {
+      "name": "settings_sign_out",
+      "value": "退出登录"
+    },
+    {
+      "name": "account_title",
+      "value": "账户管理"
+    },
+    {
+      "name": "account_placeholder_desc",
+      "value": "账号详情与注销流程即将接入，当前为占位页"
+    },
+    {
+      "name": "account_profile_loading",
+      "value": "正在加载账户资料"
+    },
+    {
+      "name": "account_identity_loading",
+      "value": "正在加载登录方式"
+    },
+    {
+      "name": "account_section_info",
+      "value": "账户信息"
+    },
+    {
+      "name": "account_section_identity",
+      "value": "登录方式"
+    },
+    {
+      "name": "account_section_session",
+      "value": "会话"
+    },
+    {
+      "name": "account_section_danger",
+      "value": "危险操作"
+    },
+    {
+      "name": "account_field_id",
+      "value": "账号 ID"
+    },
+    {
+      "name": "account_field_contact",
+      "value": "联系方式"
+    },
+    {
+      "name": "account_field_signin_method",
+      "value": "登录方式"
+    },
+    {
+      "name": "account_field_signin_time",
+      "value": "登录时间"
+    },
+    {
+      "name": "account_identity_bind",
+      "value": "绑定"
+    },
+    {
+      "name": "account_identity_change",
+      "value": "修改"
+    },
+    {
+      "name": "account_identity_unbound",
+      "value": "未绑定"
+    },
+    {
+      "name": "account_verify_security_title",
+      "value": "安全验证"
+    },
+    {
+      "name": "account_otp_resend",
+      "value": "重新发送"
+    },
+    {
+      "name": "account_sign_out",
+      "value": "退出登录"
+    },
+    {
+      "name": "account_sign_out_confirm_title",
+      "value": "确认退出登录"
+    },
+    {
+      "name": "account_deactivation_title",
+      "value": "注销账号"
+    },
+    {
+      "name": "account_deactivation_confirm_phrase",
+      "value": "删除我的账户"
+    },
+    {
+      "name": "account_deactivation_submit",
+      "value": "确认注销"
+    },
+    {
+      "name": "auth_login_welcome",
+      "value": "欢迎回来，请选择登录方式"
+    },
+    {
+      "name": "auth_login_nav_title",
+      "value": "登录"
+    },
+    {
+      "name": "auth_guest_mode",
+      "value": "游客模式"
+    },
+    {
+      "name": "auth_phone_secure_title",
+      "value": "安全快速登录"
+    },
+    {
+      "name": "auth_phone_secure_subtitle",
+      "value": "银行级别安全保护，支持全球多地区"
+    },
+    {
+      "name": "auth_phone_hero_title",
+      "value": "输入手机号"
+    },
+    {
+      "name": "auth_phone_hero_subtitle",
+      "value": "我们将发送验证码到你的手机"
+    },
+    {
+      "name": "auth_phone_field_label",
+      "value": "手机号码 *"
+    },
+    {
+      "name": "auth_phone_field_title",
+      "value": "手机号"
+    },
+    {
+      "name": "auth_phone_get_code",
+      "value": "获取验证码"
+    },
+    {
+      "name": "auth_phone_send_otp",
+      "value": "发送验证码"
+    },
+    {
+      "name": "auth_region_picker_title",
+      "value": "选择国家和地区"
+    },
+    {
+      "name": "auth_otp_input_title",
+      "value": "输入 6 位验证码"
+    },
+    {
+      "name": "auth_otp_nav_title",
+      "value": "验证码验证"
+    },
+    {
+      "name": "auth_otp_sent_to",
+      "value": "验证码已发送至"
+    },
+    {
+      "name": "auth_otp_resend_countdown",
+      "value": "秒后可重新发送"
+    },
+    {
+      "name": "auth_otp_resend",
+      "value": "重新发送"
+    },
+    {
+      "name": "auth_otp_security_hint",
+      "value": "验证码仅用于登录验证，请勿泄露给他人"
+    },
+    {
+      "name": "auth_otp_verify_login",
+      "value": "验证并登录"
+    },
+    {
+      "name": "auth_legal_prefix",
+      "value": "我已阅读并同意"
+    },
+    {
+      "name": "auth_legal_terms",
+      "value": "服务条款"
+    },
+    {
+      "name": "auth_legal_and",
+      "value": "和"
+    },
+    {
+      "name": "auth_legal_privacy",
+      "value": "隐私协议"
+    },
+    {
+      "name": "auth_legal_prompt_title",
+      "value": "温馨提示"
+    },
+    {
+      "name": "auth_legal_prompt_intro",
+      "value": "欢迎使用健康助手。在使用前，请认真阅读并理解以下协议："
+    },
+    {
+      "name": "auth_legal_health_disclaimer",
+      "value": "本服务提供的信息仅供健康管理和记录参考，不作为诊断、治疗或用药的直接处置依据。"
+    },
+    {
+      "name": "auth_legal_perm_device",
+      "value": "常用设备信息：用于检查网络环境、保障账号与健康数据安全。"
+    },
+    {
+      "name": "auth_legal_perm_location",
+      "value": "位置信息：用于提供与位置相关的页面展示和服务。"
+    },
+    {
+      "name": "auth_legal_perm_photos",
+      "value": "相机 / 相册信息：用于上传、识别、下载和分享医疗文档、图片等内容。"
+    },
+    {
+      "name": "auth_legal_perm_microphone",
+      "value": "麦克风信息：用于提供语音输入等功能。"
+    },
+    {
+      "name": "auth_legal_perm_logs",
+      "value": "日志信息：用于行为统计、问题排查和服务安全维护。"
+    },
+    {
+      "name": "auth_legal_perm_note",
+      "value": "请知悉，同意本提示并不会默认开启上述设备权限。我们会在你使用到相应功能时，再另行征得你的授权。"
+    },
+    {
+      "name": "auth_legal_security_commitment",
+      "value": "我们承诺采取必要的安全措施保护你的个人信息和健康数据。"
+    },
+    {
+      "name": "auth_legal_disagree",
+      "value": "不同意"
+    },
+    {
+      "name": "auth_legal_agree_continue",
+      "value": "同意并继续"
+    },
+    {
+      "name": "auth_legal_web_close",
+      "value": "关闭"
+    },
+    {
+      "name": "auth_legal_web_failed",
+      "value": "协议加载失败，请检查网络后重试"
+    },
+    {
+      "name": "auth_legal_web_retry",
+      "value": "重试"
+    },
+    {
+      "name": "startup_network_offline_title",
+      "value": "网络不可用"
+    },
+    {
+      "name": "startup_network_offline_desc",
+      "value": "请检查网络连接后重试。连接恢复后将自动继续。"
+    },
+    {
+      "name": "ai_provider_company_ai302",
+      "value": "302.AI"
+    },
+    {
+      "name": "ai_provider_company_302ai",
+      "value": "302.AI"
+    },
+    {
+      "name": "ai_provider_company_aihubmix",
+      "value": "推理时代"
+    },
+    {
+      "name": "ai_provider_company_anthropic",
+      "value": "Anthropic"
+    },
+    {
+      "name": "ai_provider_company_bytedance",
+      "value": "字节豆包"
+    },
+    {
+      "name": "ai_provider_company_cherry_in",
+      "value": "CherryIN"
+    },
+    {
+      "name": "ai_provider_company_deepseek",
+      "value": "深度求索"
+    },
+    {
+      "name": "ai_provider_company_doubao",
+      "value": "字节豆包"
+    },
+    {
+      "name": "ai_provider_company_gitee",
+      "value": "模力方舟"
+    },
+    {
+      "name": "ai_provider_company_google",
+      "value": "谷歌Gemini"
+    },
+    {
+      "name": "ai_provider_company_hunyuan",
+      "value": "腾讯混元"
+    },
+    {
+      "name": "ai_provider_company_iflow",
+      "value": "心流"
+    },
+    {
+      "name": "ai_provider_company_kimi",
+      "value": "月之暗面"
+    },
+    {
+      "name": "ai_provider_company_lan",
+      "value": "局域网模型"
+    },
+    {
+      "name": "ai_provider_company_local",
+      "value": "本地模型"
+    },
+    {
+      "name": "ai_provider_company_longcat",
+      "value": "美团LongCat"
+    },
+    {
+      "name": "ai_provider_company_mimo",
+      "value": "小米MIMO"
+    },
+    {
+      "name": "ai_provider_company_minimax",
+      "value": "MiniMax"
+    },
+    {
+      "name": "ai_provider_company_modelscope",
+      "value": "魔搭社区"
+    },
+    {
+      "name": "ai_provider_company_n1n",
+      "value": "N1N.AI"
+    },
+    {
+      "name": "ai_provider_company_openai",
+      "value": "OpenAI"
+    },
+    {
+      "name": "ai_provider_company_openrouter",
+      "value": "OpenRouter"
+    },
+    {
+      "name": "ai_provider_company_perplexity",
+      "value": "Perplexity"
+    },
+    {
+      "name": "ai_provider_company_poe",
+      "value": "Poe"
+    },
+    {
+      "name": "ai_provider_company_qwen",
+      "value": "阿里通义"
+    },
+    {
+      "name": "ai_provider_company_siliconcloud",
+      "value": "硅基流动"
+    },
+    {
+      "name": "ai_provider_company_spark",
+      "value": "小鲸"
+    },
+    {
+      "name": "ai_provider_company_step",
+      "value": "阶跃星辰"
+    },
+    {
+      "name": "ai_provider_company_wenxin",
+      "value": "百度文心"
+    },
+    {
+      "name": "ai_provider_company_xai",
+      "value": "xAI"
+    },
+    {
+      "name": "ai_provider_company_yi",
+      "value": "零一万物"
+    },
+    {
+      "name": "ai_provider_company_zhipu",
+      "value": "智谱华章"
+    },
+    {
+      "name": "ai_provider_company_zhipuai",
+      "value": "智谱华章"
+    },
+    {
+      "name": "ai_provider_source_local",
+      "value": "本地模型"
+    },
+    {
+      "name": "ai_provider_source_pro",
+      "value": "Pro"
+    },
+    {
+      "name": "ai_provider_source_trial",
+      "value": "试用"
+    },
+    {
+      "name": "ai_provider_source_custom",
+      "value": "自定义"
+    },
+    {
+      "name": "ai_provider_source_seed",
+      "value": "本地种子"
+    },
+    {
+      "name": "ai_model_availability_ready",
+      "value": "可用"
+    },
+    {
+      "name": "ai_model_availability_configure_key",
+      "value": "配置密钥"
+    },
+    {
+      "name": "ai_model_availability_install",
+      "value": "安装"
+    },
+    {
+      "name": "ai_model_availability_expired",
+      "value": "已过期"
+    },
+    {
+      "name": "ai_model_availability_unavailable",
+      "value": "不可用"
+    },
+    {
+      "name": "ai_settings_refresh_pull",
+      "value": "下拉刷新配置"
+    },
+    {
+      "name": "ai_settings_refresh_latest",
+      "value": "已是最新"
+    },
+    {
+      "name": "ai_settings_refresh_degraded",
+      "value": "远端刷新失败，正在显示本地可用配置"
+    },
+    {
+      "name": "medical_upload_current_member",
+      "value": "当前成员"
+    },
+    {
+      "name": "medical_upload_member_not_selected",
+      "value": "未选择"
+    },
+    {
+      "name": "medical_upload_start",
+      "value": "开始识别"
+    },
+    {
+      "name": "medical_upload_picking_summary_title",
+      "value": "已选择文件"
+    },
+    {
+      "name": "medical_upload_picking_add_files",
+      "value": "继续添加文件"
+    },
+    {
+      "name": "medical_upload_picking_tip_auto_type",
+      "value": "✨ 支持识别：自动识别文档类型"
+    },
+    {
+      "name": "medical_upload_picking_tip_formats",
+      "value": "📋 支持格式：图片 (JPG/PNG/HEIC)、PDF 文档"
+    },
+    {
+      "name": "medical_upload_picking_clear",
+      "value": "清空"
+    },
+    {
+      "name": "medical_upload_picking_report_type",
+      "value": "报告类型"
+    },
+    {
+      "name": "ai_runtime_prompt_current_date_instruction_format",
+      "value": "当前日期：%@。请据此理解今天、明天、本周等时间表达。"
+    }
+  ]
+}

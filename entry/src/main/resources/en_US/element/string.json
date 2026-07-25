@@ -1,0 +1,1292 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "Support client entry module"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "SupportClient main entry"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "SupportClient"
+    },
+    {
+      "name": "permission_internet_reason",
+      "value": "Used to access the Support backend API, refresh auth tokens, and sync file metadata"
+    },
+    {
+      "name": "permission_network_info_reason",
+      "value": "Used to detect network connectivity and safely retry requests after recovery"
+    },
+    {
+      "name": "permission_store_persistent_data_reason",
+      "value": "Used to retain the install-level device identifier and login secret after uninstall so account continuity is preserved"
+    },
+    {
+      "name": "home_title",
+      "value": "Home"
+    },
+    {
+      "name": "home_welcome",
+      "value": "Tap to continue"
+    },
+    {
+      "name": "home_loading",
+      "value": "Loading…"
+    },
+    {
+      "name": "home_refresh",
+      "value": "Refresh"
+    },
+    {
+      "name": "home_members_section",
+      "value": "Family members"
+    },
+    {
+      "name": "home_members_empty",
+      "value": "No members yet"
+    },
+    {
+      "name": "home_medical_section",
+      "value": "Medical information"
+    },
+    {
+      "name": "home_medical_family_cabinet",
+      "value": "Family medicine box"
+    },
+    {
+      "name": "home_medical_ai_report",
+      "value": "AI Smart Report"
+    },
+    {
+      "name": "home_module_maintenance",
+      "value": "Medical and nutrition modules are not enabled for this member"
+    },
+    {
+      "name": "home_module_maintenance_action",
+      "value": "Enable modules"
+    },
+    {
+      "name": "home_members_add",
+      "value": "Add family member"
+    },
+    {
+      "name": "common_action_confirm",
+      "value": "OK"
+    },
+    {
+      "name": "common_error_unknown",
+      "value": "An unknown error occurred. Please try again later"
+    },
+    {
+      "name": "common_error_request_failed",
+      "value": "Request failed. Please try again later"
+    },
+    {
+      "name": "error_auth_expired",
+      "value": "Your session has expired. Please sign in again"
+    },
+    {
+      "name": "error_too_many_requests",
+      "value": "Too many requests. Please try again later"
+    },
+    {
+      "name": "error_service_unavailable",
+      "value": "Service temporarily unavailable. Please try again later"
+    },
+    {
+      "name": "nav_launch_loading",
+      "value": "Starting…"
+    },
+    {
+      "name": "tab_home",
+      "value": "Home"
+    },
+    {
+      "name": "tab_camera",
+      "value": "Second Camera"
+    },
+    {
+      "name": "tab_chat",
+      "value": "Chat"
+    },
+    {
+      "name": "tab_settings",
+      "value": "Settings"
+    },
+    {
+      "name": "camera_placeholder_desc",
+      "value": "Second Camera will be available soon. This is a placeholder."
+    },
+    {
+      "name": "auth_login_title",
+      "value": "Sign in"
+    },
+    {
+      "name": "auth_login_subtitle",
+      "value": "Sign in with HUAWEI ID, phone, or guest mode"
+    },
+    {
+      "name": "auth_device_login",
+      "value": "Continue as guest"
+    },
+    {
+      "name": "auth_huawei_login",
+      "value": "Sign in with HUAWEI ID"
+    },
+    {
+      "name": "auth_or_divider",
+      "value": "or"
+    },
+    {
+      "name": "auth_huawei_coming_soon",
+      "value": "Coming soon"
+    },
+    {
+      "name": "auth_phone_login",
+      "value": "Phone sign-in"
+    },
+    {
+      "name": "auth_phone_title",
+      "value": "Phone sign-in"
+    },
+    {
+      "name": "auth_phone_placeholder_desc",
+      "value": "Enter your phone number to get a code"
+    },
+    {
+      "name": "auth_continue_otp",
+      "value": "Continue (OTP placeholder)"
+    },
+    {
+      "name": "auth_otp_title",
+      "value": "Enter verification code"
+    },
+    {
+      "name": "auth_otp_placeholder_desc",
+      "value": "Enter the SMS verification code"
+    },
+    {
+      "name": "auth_upgrade_title",
+      "value": "Upgrade account"
+    },
+    {
+      "name": "settings_account",
+      "value": "Account"
+    },
+    {
+      "name": "settings_ai",
+      "value": "AI Settings"
+    },
+    {
+      "name": "ai_settings_scene_title",
+      "value": "AI Scenario Settings"
+    },
+    {
+      "name": "ai_settings_section_model",
+      "value": "Model settings"
+    },
+    {
+      "name": "ai_settings_section_tools",
+      "value": "Tools / Search / Knowledge"
+    },
+    {
+      "name": "ai_settings_hub_providers_sub",
+      "value": "Provider keys and endpoints"
+    },
+    {
+      "name": "ai_settings_hub_models_sub",
+      "value": "Model catalog and capabilities"
+    },
+    {
+      "name": "ai_settings_hub_preferences_sub",
+      "value": "Per-scenario local or Pro"
+    },
+    {
+      "name": "ai_settings_hub_tasks_sub",
+      "value": "Maintain local small tasks"
+    },
+    {
+      "name": "ai_settings_retry",
+      "value": "Retry"
+    },
+    {
+      "name": "ai_settings_nav_error",
+      "value": "Page error"
+    },
+    {
+      "name": "ai_settings_route_missing",
+      "value": "Destination not found. Please go back and retry."
+    },
+    {
+      "name": "ai_settings_loading",
+      "value": "Loading…"
+    },
+    {
+      "name": "ai_settings_sync_state",
+      "value": "Sync status"
+    },
+    {
+      "name": "ai_settings_unsaved",
+      "value": "Unsaved changes"
+    },
+    {
+      "name": "ai_settings_refresh",
+      "value": "Refresh Pro config"
+    },
+    {
+      "name": "ai_settings_discard",
+      "value": "Discard"
+    },
+    {
+      "name": "ai_settings_save",
+      "value": "Save"
+    },
+    {
+      "name": "ai_settings_hub_providers",
+      "value": "Provider keys"
+    },
+    {
+      "name": "ai_settings_hub_models",
+      "value": "Models"
+    },
+    {
+      "name": "ai_settings_hub_preferences",
+      "value": "Default models"
+    },
+    {
+      "name": "ai_settings_hub_tasks",
+      "value": "Small tasks"
+    },
+    {
+      "name": "ai_settings_hub_runtime",
+      "value": "Runtime playground"
+    },
+    {
+      "name": "ai_settings_hub_runtime_sub",
+      "value": "Verify streaming, cancel, and scenario routing"
+    },
+    {
+      "name": "ai_settings_runtime_hint",
+      "value": "Chat uses ChatOrchestrator; Direct uses report-scenario AIRuntimeService. Never bypass the unified entry."
+    },
+    {
+      "name": "ai_settings_runtime_placeholder",
+      "value": "Enter a prompt"
+    },
+    {
+      "name": "ai_settings_runtime_send",
+      "value": "Send (chat)"
+    },
+    {
+      "name": "ai_settings_runtime_cancel",
+      "value": "Cancel"
+    },
+    {
+      "name": "ai_settings_runtime_direct",
+      "value": "Direct (report)"
+    },
+    {
+      "name": "ai_settings_runtime_reasoning",
+      "value": "Reasoning"
+    },
+    {
+      "name": "ai_settings_runtime_empty",
+      "value": "Output appears here"
+    },
+    {
+      "name": "ai_settings_provider_add",
+      "value": "Add custom provider"
+    },
+    {
+      "name": "ai_settings_providers_add_nav_title",
+      "value": "Add custom provider"
+    },
+    {
+      "name": "ai_settings_providers_add_field_name",
+      "value": "Provider name"
+    },
+    {
+      "name": "ai_settings_providers_add_action_append_completion_path",
+      "value": "Append /v1/chat/completions"
+    },
+    {
+      "name": "ai_settings_providers_add_error_invalid_url_prefix",
+      "value": "Request URL must start with http:// or https://"
+    },
+    {
+      "name": "ai_settings_provider_url",
+      "value": "Request URL"
+    },
+    {
+      "name": "ai_settings_provider_key",
+      "value": "API Key"
+    },
+    {
+      "name": "ai_settings_provider_key_confirm",
+      "value": "Confirm save key"
+    },
+    {
+      "name": "ai_settings_provider_test_model",
+      "value": "Connectivity test model"
+    },
+    {
+      "name": "ai_settings_provider_test",
+      "value": "Test connection"
+    },
+    {
+      "name": "ai_settings_provider_privacy",
+      "value": "Privacy policy"
+    },
+    {
+      "name": "ai_settings_provider_company",
+      "value": "Company"
+    },
+    {
+      "name": "ai_settings_provider_name",
+      "value": "Name"
+    },
+    {
+      "name": "ai_settings_trial_title",
+      "value": "Pro trial"
+    },
+    {
+      "name": "ai_settings_trial_apply",
+      "value": "Apply for trial"
+    },
+    {
+      "name": "ai_settings_providers_trial_card_title",
+      "value": "Model API Keys / Trial Access"
+    },
+    {
+      "name": "ai_settings_providers_trial_card_subtitle",
+      "value": "Configure API key to enable related model capabilities"
+    },
+    {
+      "name": "ai_settings_providers_trial_status_active",
+      "value": "Trial is active"
+    },
+    {
+      "name": "ai_settings_providers_trial_status_remaining_days",
+      "value": "Remaining {days} days"
+    },
+    {
+      "name": "ai_settings_providers_trial_status_pending",
+      "value": "Application under review"
+    },
+    {
+      "name": "ai_settings_providers_trial_status_rejected",
+      "value": "Application rejected, you can apply again"
+    },
+    {
+      "name": "ai_settings_providers_trial_status_expired",
+      "value": "Trial expired, you can reapply"
+    },
+    {
+      "name": "ai_settings_providers_trial_status_default",
+      "value": "New users can apply for a trial"
+    },
+    {
+      "name": "ai_settings_providers_trial_consent_hint",
+      "value": "Before submitting, please confirm you have read the relevant provider privacy notice."
+    },
+    {
+      "name": "ai_settings_providers_trial_consent_toggle",
+      "value": "I have read and agree to the related privacy terms"
+    },
+    {
+      "name": "ai_settings_providers_trial_error_need_consent",
+      "value": "Please accept the privacy terms before submitting"
+    },
+    {
+      "name": "ai_settings_providers_trial_action_active",
+      "value": "Activated"
+    },
+    {
+      "name": "ai_settings_providers_trial_action_pending",
+      "value": "Pending"
+    },
+    {
+      "name": "ai_settings_providers_trial_action_reapply",
+      "value": "Reapply"
+    },
+    {
+      "name": "ai_settings_providers_trial_action_apply",
+      "value": "Apply"
+    },
+    {
+      "name": "ai_settings_providers_editor_alert_notice_title",
+      "value": "Notice"
+    },
+    {
+      "name": "common_save",
+      "value": "Save"
+    },
+    {
+      "name": "ai_settings_providers_editor_nav_title",
+      "value": "Edit API Key"
+    },
+    {
+      "name": "ai_settings_providers_editor_field_request_url",
+      "value": "Request URL"
+    },
+    {
+      "name": "ai_settings_providers_editor_key_placeholder",
+      "value": "Enter new key (not shown again)"
+    },
+    {
+      "name": "ai_settings_providers_editor_privacy_view_policy",
+      "value": "View privacy policy"
+    },
+    {
+      "name": "ai_settings_providers_editor_privacy_accept",
+      "value": "I have read and agree to this provider's privacy policy"
+    },
+    {
+      "name": "ai_settings_providers_editor_section_models",
+      "value": "Provider models"
+    },
+    {
+      "name": "ai_settings_providers_editor_models_empty",
+      "value": "No online models for this provider yet"
+    },
+    {
+      "name": "ai_settings_providers_editor_model_delete",
+      "value": "Delete"
+    },
+    {
+      "name": "ai_settings_providers_editor_section_api_test",
+      "value": "API test"
+    },
+    {
+      "name": "ai_settings_providers_editor_field_test_model",
+      "value": "Test model"
+    },
+    {
+      "name": "ai_settings_providers_editor_action_test_api",
+      "value": "Test API"
+    },
+    {
+      "name": "ai_settings_providers_editor_test_passed",
+      "value": "Passed"
+    },
+    {
+      "name": "ai_settings_providers_editor_test_failed",
+      "value": "Failed"
+    },
+    {
+      "name": "ai_settings_providers_editor_test_no_models",
+      "value": "No models available"
+    },
+    {
+      "name": "ai_settings_providers_editor_alert_need_api_key",
+      "value": "Please configure a valid API key first"
+    },
+    {
+      "name": "ai_settings_providers_editor_alert_no_models",
+      "value": "No testable models for this provider. Add a model first."
+    },
+    {
+      "name": "ai_settings_providers_editor_alert_test_failed",
+      "value": "Connection test failed. Check the URL or API key."
+    },
+    {
+      "name": "ai_settings_providers_editor_alert_backend_network_error",
+      "value": "Backend connectivity test is unreachable. If it still fails, check network, request URL, and model name."
+    },
+    {
+      "name": "common_close",
+      "value": "Close"
+    },
+    {
+      "name": "ai_settings_models_management_nav_title",
+      "value": "{name} Models"
+    },
+    {
+      "name": "ai_settings_models_management_nav_title_fallback",
+      "value": "Provider Models"
+    },
+    {
+      "name": "ai_settings_models_management_search_prompt",
+      "value": "Search models"
+    },
+    {
+      "name": "ai_settings_models_management_action_close",
+      "value": "Close"
+    },
+    {
+      "name": "ai_settings_models_management_action_add",
+      "value": "Add"
+    },
+    {
+      "name": "ai_settings_models_management_alert_title",
+      "value": "Notice"
+    },
+    {
+      "name": "ai_settings_models_management_section_auto_refresh",
+      "value": "Auto refresh"
+    },
+    {
+      "name": "ai_settings_models_management_auto_refresh_empty_key",
+      "value": "This provider has no API key yet, so remote models cannot auto-refresh. You can still tap + to add a model manually."
+    },
+    {
+      "name": "ai_settings_models_management_auto_refresh_enabled",
+      "value": "Models are fetched once when opening this page. Pull to refresh or use the toolbar button."
+    },
+    {
+      "name": "ai_settings_models_management_section_added",
+      "value": "Added ({count})"
+    },
+    {
+      "name": "ai_settings_models_management_added_empty",
+      "value": "No models added for this provider yet"
+    },
+    {
+      "name": "ai_settings_models_management_added_empty_search",
+      "value": "No matching added models"
+    },
+    {
+      "name": "ai_settings_models_management_section_remote",
+      "value": "Available remotely ({count})"
+    },
+    {
+      "name": "ai_settings_models_management_loading",
+      "value": "Refreshing model list..."
+    },
+    {
+      "name": "ai_settings_models_management_remote_empty",
+      "value": "No remote models available"
+    },
+    {
+      "name": "ai_settings_models_management_remote_empty_search",
+      "value": "No matching remote models"
+    },
+    {
+      "name": "ai_settings_models_management_remote_added",
+      "value": "Added"
+    },
+    {
+      "name": "ai_settings_models_management_remote_footer",
+      "value": "Auto refresh prefers the provider official list API. If listing is unsupported, you can still add models manually."
+    },
+    {
+      "name": "ai_settings_models_online_field_api_name",
+      "value": "API model name"
+    },
+    {
+      "name": "ai_settings_models_online_field_api_name_prompt",
+      "value": "e.g. gpt-4o-mini"
+    },
+    {
+      "name": "ai_settings_models_online_field_display_name",
+      "value": "Display name"
+    },
+    {
+      "name": "ai_settings_models_online_field_display_name_prompt",
+      "value": "Name shown in lists"
+    },
+    {
+      "name": "ai_settings_models_online_field_vendor",
+      "value": "Provider"
+    },
+    {
+      "name": "ai_settings_models_online_nav_title",
+      "value": "Add Online Model"
+    },
+    {
+      "name": "ai_settings_models_online_save",
+      "value": "Add"
+    },
+    {
+      "name": "ai_settings_models_online_error_title",
+      "value": "Unable to add"
+    },
+    {
+      "name": "ai_settings_models_online_err_api_name",
+      "value": "Enter an API model name"
+    },
+    {
+      "name": "ai_settings_models_online_err_display_name",
+      "value": "Enter a display name"
+    },
+    {
+      "name": "ai_settings_models_online_err_vendor",
+      "value": "Select a provider with an API key"
+    },
+    {
+      "name": "ai_settings_models_online_section_basic",
+      "value": "Basic"
+    },
+    {
+      "name": "ai_settings_models_online_section_price",
+      "value": "Price"
+    },
+    {
+      "name": "ai_settings_models_online_section_capabilities",
+      "value": "Capabilities"
+    },
+    {
+      "name": "ai_settings_field_price_tier",
+      "value": "Price tier"
+    },
+    {
+      "name": "ai_settings_models_online_toggle_default_hidden",
+      "value": "Hidden by default"
+    },
+    {
+      "name": "ai_settings_models_online_probe_button",
+      "value": "Auto-detect capabilities"
+    },
+    {
+      "name": "ai_settings_models_online_probe_cost_note",
+      "value": "Note: Auto-detecting capabilities may incur API usage."
+    },
+    {
+      "name": "ai_settings_models_online_probe_sheet_title",
+      "value": "Capability probe"
+    },
+    {
+      "name": "ai_settings_models_online_toggle_supports_text",
+      "value": "Supports text"
+    },
+    {
+      "name": "ai_settings_field_supports_multimodal",
+      "value": "Supports multimodal"
+    },
+    {
+      "name": "ai_settings_field_supports_reasoning",
+      "value": "Supports reasoning"
+    },
+    {
+      "name": "ai_settings_field_reasoning_controllable",
+      "value": "Controllable thinking"
+    },
+    {
+      "name": "ai_settings_field_supports_tool_use",
+      "value": "Supports tool use"
+    },
+    {
+      "name": "ai_settings_models_online_toggle_image_gen",
+      "value": "Image generation"
+    },
+    {
+      "name": "ai_settings_models_online_capabilities_footer",
+      "value": "Some capabilities affect whether this model is available in scenarios."
+    },
+    {
+      "name": "common_cancel",
+      "value": "Cancel"
+    },
+    {
+      "name": "common_all",
+      "value": "All"
+    },
+    {
+      "name": "common_name",
+      "value": "Name"
+    },
+    {
+      "name": "common_tools",
+      "value": "Tools"
+    },
+    {
+      "name": "common_done",
+      "value": "Done"
+    },
+    {
+      "name": "ai_settings_models_filter_models",
+      "value": "Models"
+    },
+    {
+      "name": "ai_settings_models_filter_agents",
+      "value": "Agents"
+    },
+    {
+      "name": "ai_settings_models_nav_title_agents",
+      "value": "Agents"
+    },
+    {
+      "name": "ai_settings_models_search_models",
+      "value": "Search models"
+    },
+    {
+      "name": "ai_settings_models_search_agents",
+      "value": "Search agents"
+    },
+    {
+      "name": "ai_settings_models_badge_local",
+      "value": "Local"
+    },
+    {
+      "name": "ai_settings_models_capability_visual_short",
+      "value": "Vision"
+    },
+    {
+      "name": "ai_settings_models_capability_text_short",
+      "value": "Text"
+    },
+    {
+      "name": "ai_settings_models_capability_image_gen_short",
+      "value": "Image"
+    },
+    {
+      "name": "ai_settings_models_capability_voice_short",
+      "value": "Voice"
+    },
+    {
+      "name": "ai_settings_models_capability_reasoning_short",
+      "value": "Reasoning"
+    },
+    {
+      "name": "ai_settings_models_edit_nav_title",
+      "value": "Edit Model"
+    },
+    {
+      "name": "ai_settings_models_edit_section_icon",
+      "value": "Icon"
+    },
+    {
+      "name": "ai_settings_models_edit_section_capabilities",
+      "value": "Capabilities"
+    },
+    {
+      "name": "ai_settings_models_online_section_usage",
+      "value": "Usage & Tools"
+    },
+    {
+      "name": "ai_settings_models_online_field_scenarios",
+      "value": "Scenarios"
+    },
+    {
+      "name": "ai_settings_models_agent_related_tasks",
+      "value": "Related small tasks"
+    },
+    {
+      "name": "ai_settings_model_add",
+      "value": "Add online model"
+    },
+    {
+      "name": "ai_settings_model_agent_add",
+      "value": "New agent"
+    },
+    {
+      "name": "ai_settings_model_local",
+      "value": "Local models"
+    },
+    {
+      "name": "ai_settings_local_unavailable_title",
+      "value": "Local models coming soon"
+    },
+    {
+      "name": "ai_settings_local_unavailable_body",
+      "value": "Import validation is available; GGUF download and inference are not yet enabled."
+    },
+    {
+      "name": "ai_settings_task_add",
+      "value": "New small task"
+    },
+    {
+      "name": "ai_settings_empty_providers",
+      "value": "No providers yet. Add a custom provider."
+    },
+    {
+      "name": "ai_settings_empty_models",
+      "value": "No models yet. Add an online model or agent."
+    },
+    {
+      "name": "ai_settings_empty_tasks",
+      "value": "No local small tasks"
+    },
+    {
+      "name": "ai_settings_key_configured",
+      "value": "Configured"
+    },
+    {
+      "name": "ai_settings_key_missing",
+      "value": "Not configured"
+    },
+    {
+      "name": "settings_upgrade_login",
+      "value": "Upgrade sign-in"
+    },
+    {
+      "name": "settings_sign_out",
+      "value": "Sign out"
+    },
+    {
+      "name": "account_title",
+      "value": "Account Management"
+    },
+    {
+      "name": "account_placeholder_desc",
+      "value": "Account details and deactivation will be available soon. This is a placeholder."
+    },
+    {
+      "name": "account_profile_loading",
+      "value": "Loading account profile"
+    },
+    {
+      "name": "account_identity_loading",
+      "value": "Loading sign-in methods"
+    },
+    {
+      "name": "account_section_info",
+      "value": "Account Info"
+    },
+    {
+      "name": "account_section_identity",
+      "value": "Sign-in Methods"
+    },
+    {
+      "name": "account_section_session",
+      "value": "Session"
+    },
+    {
+      "name": "account_section_danger",
+      "value": "Danger Zone"
+    },
+    {
+      "name": "account_field_id",
+      "value": "Account ID"
+    },
+    {
+      "name": "account_field_contact",
+      "value": "Contact"
+    },
+    {
+      "name": "account_field_signin_method",
+      "value": "Sign-in Method"
+    },
+    {
+      "name": "account_field_signin_time",
+      "value": "Sign-in Time"
+    },
+    {
+      "name": "account_identity_bind",
+      "value": "Bind"
+    },
+    {
+      "name": "account_identity_change",
+      "value": "Change"
+    },
+    {
+      "name": "account_identity_unbound",
+      "value": "Not bound"
+    },
+    {
+      "name": "account_verify_security_title",
+      "value": "Security Verification"
+    },
+    {
+      "name": "account_otp_resend",
+      "value": "Resend"
+    },
+    {
+      "name": "account_sign_out",
+      "value": "Sign Out"
+    },
+    {
+      "name": "account_sign_out_confirm_title",
+      "value": "Sign out?"
+    },
+    {
+      "name": "account_deactivation_title",
+      "value": "Deactivate Account"
+    },
+    {
+      "name": "account_deactivation_confirm_phrase",
+      "value": "Delete my account"
+    },
+    {
+      "name": "account_deactivation_submit",
+      "value": "Confirm Deactivation"
+    },
+    {
+      "name": "auth_login_welcome",
+      "value": "Welcome back. Choose how to sign in"
+    },
+    {
+      "name": "auth_login_nav_title",
+      "value": "Sign in"
+    },
+    {
+      "name": "auth_guest_mode",
+      "value": "Guest mode"
+    },
+    {
+      "name": "auth_phone_secure_title",
+      "value": "Secure and fast sign-in"
+    },
+    {
+      "name": "auth_phone_secure_subtitle",
+      "value": "Bank-grade security with global regions"
+    },
+    {
+      "name": "auth_phone_hero_title",
+      "value": "Enter phone number"
+    },
+    {
+      "name": "auth_phone_hero_subtitle",
+      "value": "We will send a verification code to your phone"
+    },
+    {
+      "name": "auth_phone_field_label",
+      "value": "Phone number *"
+    },
+    {
+      "name": "auth_phone_field_title",
+      "value": "Phone number"
+    },
+    {
+      "name": "auth_phone_get_code",
+      "value": "Get verification code"
+    },
+    {
+      "name": "auth_phone_send_otp",
+      "value": "Send code"
+    },
+    {
+      "name": "auth_region_picker_title",
+      "value": "Select country or region"
+    },
+    {
+      "name": "auth_otp_input_title",
+      "value": "Enter 6-digit code"
+    },
+    {
+      "name": "auth_otp_nav_title",
+      "value": "Verify code"
+    },
+    {
+      "name": "auth_otp_sent_to",
+      "value": "Code sent to"
+    },
+    {
+      "name": "auth_otp_resend_countdown",
+      "value": "s before resend"
+    },
+    {
+      "name": "auth_otp_resend",
+      "value": "Resend"
+    },
+    {
+      "name": "auth_otp_security_hint",
+      "value": "Do not share your verification code"
+    },
+    {
+      "name": "auth_otp_verify_login",
+      "value": "Verify and sign in"
+    },
+    {
+      "name": "auth_legal_prefix",
+      "value": "I have read and agree to the "
+    },
+    {
+      "name": "auth_legal_terms",
+      "value": "Terms of Service"
+    },
+    {
+      "name": "auth_legal_and",
+      "value": " and "
+    },
+    {
+      "name": "auth_legal_privacy",
+      "value": "Privacy Policy"
+    },
+    {
+      "name": "auth_legal_prompt_title",
+      "value": "Notice"
+    },
+    {
+      "name": "auth_legal_prompt_intro",
+      "value": "Welcome. Please read the following agreements before continuing:"
+    },
+    {
+      "name": "auth_legal_health_disclaimer",
+      "value": "Information is for health management reference only and is not a diagnosis or treatment."
+    },
+    {
+      "name": "auth_legal_perm_device",
+      "value": "Device info: used for network checks and account security."
+    },
+    {
+      "name": "auth_legal_perm_location",
+      "value": "Location: used for location-related features when needed."
+    },
+    {
+      "name": "auth_legal_perm_photos",
+      "value": "Camera / Photos: used to upload and share medical documents and images."
+    },
+    {
+      "name": "auth_legal_perm_microphone",
+      "value": "Microphone: used for voice input features."
+    },
+    {
+      "name": "auth_legal_perm_logs",
+      "value": "Logs: used for diagnostics and service security."
+    },
+    {
+      "name": "auth_legal_perm_note",
+      "value": "Agreeing does not enable permissions by default. We will ask again when a feature needs them."
+    },
+    {
+      "name": "auth_legal_security_commitment",
+      "value": "We commit to protecting your personal and health data with necessary security measures."
+    },
+    {
+      "name": "auth_legal_disagree",
+      "value": "Disagree"
+    },
+    {
+      "name": "auth_legal_agree_continue",
+      "value": "Agree and continue"
+    },
+    {
+      "name": "auth_legal_web_close",
+      "value": "Close"
+    },
+    {
+      "name": "auth_legal_web_failed",
+      "value": "Failed to load. Check network and retry"
+    },
+    {
+      "name": "auth_legal_web_retry",
+      "value": "Retry"
+    },
+    {
+      "name": "startup_network_offline_title",
+      "value": "Network unavailable"
+    },
+    {
+      "name": "startup_network_offline_desc",
+      "value": "Check your connection and try again. Launch will resume when network is back."
+    },
+    {
+      "name": "ai_provider_company_ai302",
+      "value": "302.AI"
+    },
+    {
+      "name": "ai_provider_company_302ai",
+      "value": "302.AI"
+    },
+    {
+      "name": "ai_provider_company_aihubmix",
+      "value": "AiHubMix"
+    },
+    {
+      "name": "ai_provider_company_anthropic",
+      "value": "Anthropic"
+    },
+    {
+      "name": "ai_provider_company_bytedance",
+      "value": "ByteDance Doubao"
+    },
+    {
+      "name": "ai_provider_company_cherry_in",
+      "value": "CherryIN"
+    },
+    {
+      "name": "ai_provider_company_deepseek",
+      "value": "DeepSeek"
+    },
+    {
+      "name": "ai_provider_company_doubao",
+      "value": "ByteDance Doubao"
+    },
+    {
+      "name": "ai_provider_company_gitee",
+      "value": "Gitee AI"
+    },
+    {
+      "name": "ai_provider_company_google",
+      "value": "Google Gemini"
+    },
+    {
+      "name": "ai_provider_company_hunyuan",
+      "value": "Tencent Hunyuan"
+    },
+    {
+      "name": "ai_provider_company_iflow",
+      "value": "iFlow"
+    },
+    {
+      "name": "ai_provider_company_kimi",
+      "value": "Moonshot"
+    },
+    {
+      "name": "ai_provider_company_lan",
+      "value": "LAN"
+    },
+    {
+      "name": "ai_provider_company_local",
+      "value": "Local"
+    },
+    {
+      "name": "ai_provider_company_longcat",
+      "value": "LongCat"
+    },
+    {
+      "name": "ai_provider_company_mimo",
+      "value": "MIMO"
+    },
+    {
+      "name": "ai_provider_company_minimax",
+      "value": "MiniMax"
+    },
+    {
+      "name": "ai_provider_company_modelscope",
+      "value": "ModelScope"
+    },
+    {
+      "name": "ai_provider_company_n1n",
+      "value": "N1N.AI"
+    },
+    {
+      "name": "ai_provider_company_openai",
+      "value": "OpenAI"
+    },
+    {
+      "name": "ai_provider_company_openrouter",
+      "value": "OpenRouter"
+    },
+    {
+      "name": "ai_provider_company_perplexity",
+      "value": "Perplexity"
+    },
+    {
+      "name": "ai_provider_company_poe",
+      "value": "Poe"
+    },
+    {
+      "name": "ai_provider_company_qwen",
+      "value": "Alibaba Tongyi"
+    },
+    {
+      "name": "ai_provider_company_siliconcloud",
+      "value": "SiliconCloud"
+    },
+    {
+      "name": "ai_provider_company_spark",
+      "value": "Spark"
+    },
+    {
+      "name": "ai_provider_company_step",
+      "value": "StepFun"
+    },
+    {
+      "name": "ai_provider_company_wenxin",
+      "value": "Baidu Wenxin"
+    },
+    {
+      "name": "ai_provider_company_xai",
+      "value": "xAI"
+    },
+    {
+      "name": "ai_provider_company_yi",
+      "value": "01.AI"
+    },
+    {
+      "name": "ai_provider_company_zhipu",
+      "value": "Z.AI"
+    },
+    {
+      "name": "ai_provider_company_zhipuai",
+      "value": "Z.AI"
+    },
+    {
+      "name": "ai_provider_source_local",
+      "value": "Local"
+    },
+    {
+      "name": "ai_provider_source_pro",
+      "value": "Pro"
+    },
+    {
+      "name": "ai_provider_source_trial",
+      "value": "Trial"
+    },
+    {
+      "name": "ai_provider_source_custom",
+      "value": "Custom"
+    },
+    {
+      "name": "ai_provider_source_seed",
+      "value": "Seed"
+    },
+    {
+      "name": "ai_model_availability_ready",
+      "value": "Ready"
+    },
+    {
+      "name": "ai_model_availability_configure_key",
+      "value": "Configure key"
+    },
+    {
+      "name": "ai_model_availability_install",
+      "value": "Install"
+    },
+    {
+      "name": "ai_model_availability_expired",
+      "value": "Expired"
+    },
+    {
+      "name": "ai_model_availability_unavailable",
+      "value": "Unavailable"
+    },
+    {
+      "name": "ai_settings_refresh_pull",
+      "value": "Pull to refresh"
+    },
+    {
+      "name": "ai_settings_refresh_latest",
+      "value": "Already up to date"
+    },
+    {
+      "name": "ai_settings_refresh_degraded",
+      "value": "Remote refresh failed. Showing local configuration."
+    },
+    {
+      "name": "medical_upload_current_member",
+      "value": "Current member"
+    },
+    {
+      "name": "medical_upload_member_not_selected",
+      "value": "Not selected"
+    },
+    {
+      "name": "medical_upload_start",
+      "value": "Start extraction"
+    },
+    {
+      "name": "medical_upload_picking_summary_title",
+      "value": "Selected files"
+    },
+    {
+      "name": "medical_upload_picking_add_files",
+      "value": "Add more files"
+    },
+    {
+      "name": "medical_upload_picking_tip_auto_type",
+      "value": "✨ Recognition: document type is detected automatically."
+    },
+    {
+      "name": "medical_upload_picking_tip_formats",
+      "value": "📋 Formats: images (JPG/PNG/HEIC) and PDF."
+    },
+    {
+      "name": "medical_upload_picking_clear",
+      "value": "Clear"
+    },
+    {
+      "name": "medical_upload_picking_report_type",
+      "value": "Report type"
+    },
+    {
+      "name": "ai_runtime_prompt_current_date_instruction_format",
+      "value": "Current date: %@. Please use this date to interpret time expressions such as today, tomorrow, and this week."
+    }
+  ]
+}

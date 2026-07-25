@@ -1,0 +1,292 @@
+[
+  {
+    "id": "AI302",
+    "name": "AI302_API_KEY",
+    "company": "AI302",
+    "kind": "api",
+    "requestUrl": "https://api.302.ai/v1/chat/completions",
+    "isEnabled": false,
+    "position": 0,
+    "source": "localSeed"
+  },
+  {
+    "id": "AIHUBMIX",
+    "name": "AIHUBMIX_API_KEY",
+    "company": "AIHUBMIX",
+    "kind": "api",
+    "requestUrl": "https://aihubmix.com/v1/chat/completions",
+    "isEnabled": false,
+    "position": 1,
+    "source": "localSeed"
+  },
+  {
+    "id": "ANTHROPIC",
+    "name": "ANTHROPIC_API_KEY",
+    "company": "ANTHROPIC",
+    "kind": "api",
+    "requestUrl": "https://api.anthropic.com/v1/chat/completions",
+    "isEnabled": false,
+    "position": 2,
+    "source": "localSeed"
+  },
+  {
+    "id": "CHERRY_IN",
+    "name": "CHERRY_IN_API_KEY",
+    "company": "CHERRY_IN",
+    "kind": "api",
+    "requestUrl": "https://open.cherryin.net/v1/chat/completions",
+    "isEnabled": false,
+    "position": 3,
+    "source": "localSeed"
+  },
+  {
+    "id": "DEEPSEEK",
+    "name": "DEEPSEEK_API_KEY",
+    "company": "DEEPSEEK",
+    "kind": "api",
+    "requestUrl": "https://api.deepseek.com/v1/chat/completions",
+    "isEnabled": false,
+    "position": 4,
+    "source": "localSeed"
+  },
+  {
+    "id": "DOUBAO",
+    "name": "ARK_API_KEY",
+    "company": "DOUBAO",
+    "kind": "api",
+    "requestUrl": "https://ark.cn-beijing.volces.com/api/v3/chat/completions",
+    "isEnabled": false,
+    "position": 5,
+    "source": "localSeed"
+  },
+  {
+    "id": "GITEE",
+    "name": "GITEE_API_KEY",
+    "company": "GITEE",
+    "kind": "api",
+    "requestUrl": "https://ai.gitee.com/v1/chat/completions",
+    "isEnabled": false,
+    "position": 6,
+    "source": "localSeed"
+  },
+  {
+    "id": "GOOGLE",
+    "name": "GEMINI_API_KEY",
+    "company": "GOOGLE",
+    "kind": "api",
+    "requestUrl": "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+    "isEnabled": false,
+    "position": 7,
+    "source": "localSeed"
+  },
+  {
+    "id": "HUNYUAN",
+    "name": "HUNYUAN_API_KEY",
+    "company": "HUNYUAN",
+    "kind": "api",
+    "requestUrl": "https://api.hunyuan.cloud.tencent.com/v1/chat/completions",
+    "isEnabled": false,
+    "position": 8,
+    "source": "localSeed"
+  },
+  {
+    "id": "IFLOW",
+    "name": "IFLOW_API_KEY",
+    "company": "IFLOW",
+    "kind": "api",
+    "requestUrl": "https://apis.iflow.cn/v1/chat/completions",
+    "isEnabled": false,
+    "position": 9,
+    "source": "localSeed"
+  },
+  {
+    "id": "KIMI",
+    "name": "KIMI_API_KEY",
+    "company": "KIMI",
+    "kind": "api",
+    "requestUrl": "https://api.moonshot.cn/v1/chat/completions",
+    "isEnabled": false,
+    "position": 10,
+    "source": "localSeed"
+  },
+  {
+    "id": "LAN",
+    "name": "LAN",
+    "company": "LAN",
+    "kind": "api",
+    "requestUrl": "http://127.0.0.1:1234/v1/chat/completions",
+    "isEnabled": false,
+    "position": 11,
+    "source": "localSeed"
+  },
+  {
+    "id": "LOCAL",
+    "name": "LOCAL",
+    "company": "LOCAL",
+    "kind": "api",
+    "requestUrl": "LOCAL",
+    "isEnabled": false,
+    "position": 12,
+    "source": "localSeed"
+  },
+  {
+    "id": "LONGCAT",
+    "name": "LONGCAT_API_KEY",
+    "company": "LONGCAT",
+    "kind": "api",
+    "requestUrl": "https://api.longcat.chat/openai/v1/chat/completions",
+    "isEnabled": false,
+    "position": 13,
+    "source": "localSeed"
+  },
+  {
+    "id": "MIMO",
+    "name": "MIMO_API_KEY",
+    "company": "MIMO",
+    "kind": "api",
+    "requestUrl": "https://api.xiaomimimo.com/v1/chat/completions",
+    "isEnabled": false,
+    "position": 14,
+    "source": "localSeed"
+  },
+  {
+    "id": "MINIMAX",
+    "name": "MINIMAX_API_KEY",
+    "company": "MINIMAX",
+    "kind": "api",
+    "requestUrl": "https://api.minimax.chat/v1/text/chatcompletion_v2",
+    "isEnabled": false,
+    "position": 15,
+    "source": "localSeed"
+  },
+  {
+    "id": "MODELSCOPE",
+    "name": "MODELSCOPE_API_KEY",
+    "company": "MODELSCOPE",
+    "kind": "api",
+    "requestUrl": "https://api-inference.modelscope.cn/v1/chat/completions",
+    "isEnabled": false,
+    "position": 16,
+    "source": "localSeed"
+  },
+  {
+    "id": "N1N",
+    "name": "N1N_API_KEY",
+    "company": "N1N",
+    "kind": "api",
+    "requestUrl": "https://api.n1n.ai/v1/chat/completions",
+    "isEnabled": false,
+    "position": 17,
+    "source": "localSeed"
+  },
+  {
+    "id": "OPENAI",
+    "name": "OPENAI_API_KEY",
+    "company": "OPENAI",
+    "kind": "api",
+    "requestUrl": "https://api.openai.com/v1/chat/completions",
+    "isEnabled": false,
+    "position": 18,
+    "source": "localSeed"
+  },
+  {
+    "id": "OPENROUTER",
+    "name": "OPENROUTER_API_KEY",
+    "company": "OPENROUTER",
+    "kind": "api",
+    "requestUrl": "https://openrouter.ai/api/v1/chat/completions",
+    "isEnabled": false,
+    "position": 19,
+    "source": "localSeed"
+  },
+  {
+    "id": "PERPLEXITY",
+    "name": "PERPLEXITY_API_KEY",
+    "company": "PERPLEXITY",
+    "kind": "api",
+    "requestUrl": "https://api.perplexity.ai/chat/completions",
+    "isEnabled": false,
+    "position": 20,
+    "source": "localSeed"
+  },
+  {
+    "id": "POE",
+    "name": "POE_API_KEY",
+    "company": "POE",
+    "kind": "api",
+    "requestUrl": "https://api.poe.com/v1/chat/completions",
+    "isEnabled": false,
+    "position": 21,
+    "source": "localSeed"
+  },
+  {
+    "id": "QWEN",
+    "name": "DASHSCOPE_API_KEY",
+    "company": "QWEN",
+    "kind": "api",
+    "requestUrl": "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
+    "isEnabled": false,
+    "position": 22,
+    "source": "localSeed"
+  },
+  {
+    "id": "SILICONCLOUD",
+    "name": "SILICONCLOUD_API_KEY",
+    "company": "SILICONCLOUD",
+    "kind": "api",
+    "requestUrl": "https://api.siliconflow.cn/v1/chat/completions",
+    "isEnabled": false,
+    "position": 23,
+    "source": "localSeed"
+  },
+  {
+    "id": "STEP",
+    "name": "STEP_API_KEY",
+    "company": "STEP",
+    "kind": "api",
+    "requestUrl": "https://api.stepfun.com/v1/chat/completions",
+    "isEnabled": false,
+    "position": 24,
+    "source": "localSeed"
+  },
+  {
+    "id": "WENXIN",
+    "name": "WENXIN_API_KEY",
+    "company": "WENXIN",
+    "kind": "api",
+    "requestUrl": "https://qianfan.baidubce.com/v2/chat/completions",
+    "isEnabled": false,
+    "position": 25,
+    "source": "localSeed"
+  },
+  {
+    "id": "XAI",
+    "name": "XAI_API_KEY",
+    "company": "XAI",
+    "kind": "api",
+    "requestUrl": "https://api.x.ai/v1/chat/completions",
+    "isEnabled": false,
+    "position": 26,
+    "source": "localSeed"
+  },
+  {
+    "id": "YI",
+    "name": "YI_API_KEY",
+    "company": "YI",
+    "kind": "api",
+    "requestUrl": "https://api.lingyiwanwu.com/v1/chat/completions",
+    "isEnabled": false,
+    "position": 27,
+    "source": "localSeed"
+  },
+  {
+    "id": "ZHIPUAI",
+    "name": "ZHIPUAI_API_KEY",
+    "company": "ZHIPUAI",
+    "kind": "api",
+    "requestUrl": "https://open.bigmodel.cn/api/paas/v4/chat/completions",
+    "isEnabled": false,
+    "position": 28,
+    "source": "localSeed"
+  }
+]

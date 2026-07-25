@@ -1,0 +1,17 @@
+{
+  "name": "entry",
+  "version": "1.0.0",
+  "description": "Please describe the basic information.",
+  "main": "",
+  "author": "",
+  "license": "",
+  "dependencies": {
+    // 使用官方 OHPM registry 包，固定到当前采用的官方 HarmonyOS SDK 版本。
+    "@aliyun/oss": "2.0.0-beta.1",
+    "@ohos/xml_js": "1.0.2",
+    "@ohos/sax": "1.0.3",
+    "@types/mime": "3.0.3",
+    "mime": "3.0.0",
+    "@luvi/lv-markdown-in": "file:./third_party/lv-markdown-in"
+  }
+}
