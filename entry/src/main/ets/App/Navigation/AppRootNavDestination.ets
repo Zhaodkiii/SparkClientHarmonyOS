@@ -1,7 +1,7 @@
 import { appRouter } from './AppRouter';
 import { AppContainer } from '../AppContainer';
 import { Member } from '../../Projects/Core/Domain/Entities/Member';
-import { RemoteExaminationReportWithAttachments } from '../../Projects/Core/Networking/API/Medical/MedicalSyncAPI';
+import { RemoteExaminationReportWithAttachments, RemoteMedicineBox } from '../../Projects/Core/Networking/API/Medical/MedicalSyncAPI';
 import { MedicalArchiveListMode } from '../../Projects/Core/Networking/API/Medical/MedicalArchiveModels';
 import { ChatRoutes } from '../../Projects/Features/Chat/Presentation/ChatRoutes';
 import { ChatTabPage } from '../../Projects/Features/Chat/Presentation/ChatTabPage';
@@ -21,6 +21,9 @@ import { HealthExamReportDetailPage } from '../../Projects/Features/Home/Present
 import { ExaminationReportsListPage } from '../../Projects/Features/Home/Presentation/MedicalLists/ExaminationReports/ExaminationReportsListPage';
 import { ExaminationReportDetailPage } from '../../Projects/Features/Home/Presentation/MedicalLists/ExaminationReports/ExaminationReportDetailPage';
 import { ExaminationReportCategoryDetailPage } from '../../Projects/Features/Home/Presentation/MedicalLists/ExaminationReports/ExaminationReportCategoryDetailPage';
+import { MedicationExecutionCenterPage } from '../../Projects/Features/Home/Presentation/MedicalLists/Medications/MedicationExecutionCenter/MedicationExecutionCenterPage';
+import { MedicineBoxDetailPage } from '../../Projects/Features/Home/Presentation/MedicalLists/MedicineBox/MedicineBoxDetailPage';
+import { MedicineBoxDraftMapping } from '../../Projects/Features/Home/Presentation/MedicalLists/MedicineBox/MedicineBoxDraftMapping';
 import { MemberSetupFlowPage } from '../../Projects/Features/Home/Presentation/Members/MemberSetup/MemberSetupFlowPage';
 import { MemberSetupFlowViewModel } from '../../Projects/Features/Home/Presentation/Members/MemberSetup/MemberSetupFlowViewModel';
 
@@ -99,6 +102,7 @@ struct HomeSecondaryRootPage {
   private setupFlowVm?: MemberSetupFlowViewModel;
   @State private healthExamListRevision: number = 0;
   @State private examinationListRevision: number = 0;
+  @State private medicineBoxListRevision: number = 0;
   @State private setupReady: boolean = false;
 
   aboutToAppear(): void {
@@ -112,6 +116,7 @@ struct HomeSecondaryRootPage {
     if (this.homeVm) {
       this.healthExamListRevision = this.homeVm.healthExamListRevision;
       this.examinationListRevision = this.homeVm.examinationListRevision;
+      this.medicineBoxListRevision = this.homeVm.medicineBoxListRevision;
     }
   }
 
@@ -173,6 +178,57 @@ struct HomeSecondaryRootPage {
     this.examinationListRevision = homeVm.examinationListRevision;
   }
 
+  private handleMedicineBoxDeleted(boxID: number): void {
+    const homeVm = this.homeVm;
+    if (!homeVm) {
+      return;
+    }
+    if (homeVm.medicineBoxDetailCabinetMode === MedicineBoxMode.FAMILY) {
+      HomeMedicalRouteSupport.removeFamilyMedicineBox(homeVm, boxID);
+    } else {
+      HomeMedicalRouteSupport.removeMedicineBox(homeVm, boxID);
+    }
+    homeVm.bumpMedicineBoxListRevision();
+    this.medicineBoxListRevision = homeVm.medicineBoxListRevision;
+  }
+
+  private handleMedicineBoxArchiveChanged(boxID: number, isArchived: boolean): void {
+    const homeVm = this.homeVm;
+    if (!homeVm) {
+      return;
+    }
+    const belongsInList = homeVm.medicineBoxDetailArchiveMode === MedicalArchiveListMode.ARCHIVED
+      ? isArchived
+      : !isArchived;
+    if (!belongsInList) {
+      this.handleMedicineBoxDeleted(boxID);
+    }
+  }
+
+  private handleMedicineBoxSaved(box: RemoteMedicineBox): void {
+    const homeVm = this.homeVm;
+    if (!homeVm) {
+      return;
+    }
+    const belongsInList = homeVm.medicineBoxDetailArchiveMode === MedicalArchiveListMode.ARCHIVED
+      ? box.isArchived
+      : !box.isArchived;
+    if (belongsInList) {
+      if (homeVm.medicineBoxDetailCabinetMode === MedicineBoxMode.FAMILY) {
+        HomeMedicalRouteSupport.upsertFamilyMedicineBox(homeVm, box);
+      } else {
+        HomeMedicalRouteSupport.upsertMedicineBox(homeVm, box);
+      }
+    } else if (homeVm.medicineBoxDetailCabinetMode === MedicineBoxMode.FAMILY) {
+      HomeMedicalRouteSupport.removeFamilyMedicineBox(homeVm, box.id);
+    } else {
+      HomeMedicalRouteSupport.removeMedicineBox(homeVm, box.id);
+    }
+    homeVm.medicineBoxDetailTarget = MedicineBoxDraftMapping.cloneBox(box);
+    homeVm.bumpMedicineBoxListRevision();
+    this.medicineBoxListRevision = homeVm.medicineBoxListRevision;
+  }
+
   private async handleSetupFinished(member: Member): Promise<void> {
     const homeVm = this.homeVm;
     if (!homeVm) {
@@ -187,18 +243,52 @@ struct HomeSecondaryRootPage {
         || this.routeName === HomeMedicalRoutes.PERSONAL_CABINET) {
         FamilyMedicineCabinetPage({
           homeVm: this.homeVm,
+          listRevision: this.medicineBoxListRevision,
           mode: this.routeName === HomeMedicalRoutes.PERSONAL_CABINET
             ? MedicineBoxMode.PERSONAL
             : MedicineBoxMode.FAMILY,
           onBack: () => {
             this.pop();
+          },
+          onOpenDetail: () => {
+            appRouter.jumpPage(HomeMedicalRoutes.MEDICINE_BOX_DETAIL);
           }
         })
       } else if (this.routeName === HomeMedicalRoutes.MEDICINE_BOX_ARCHIVE) {
         MedicineBoxArchivePage({
           homeVm: this.homeVm,
+          listRevision: this.medicineBoxListRevision,
           onBack: () => {
             this.pop();
+          },
+          onOpenDetail: () => {
+            appRouter.jumpPage(HomeMedicalRoutes.MEDICINE_BOX_DETAIL);
+          }
+        })
+      } else if (this.routeName === HomeMedicalRoutes.MEDICINE_BOX_DETAIL) {
+        MedicineBoxDetailPage({
+          homeVm: this.homeVm,
+          initialBox: this.homeVm?.medicineBoxDetailTarget ?? new RemoteMedicineBox(),
+          entryMemberID: this.homeVm?.completeData()?.memberId ?? this.homeVm?.selectedMemberID ?? 0,
+          memberOptions: this.homeVm?.membersForUi() ?? [],
+          allowsHouseholdPublic: (this.homeVm?.medicineBoxDetailCabinetMode ?? MedicineBoxMode.FAMILY)
+            === MedicineBoxMode.FAMILY,
+          cabinetMode: this.homeVm?.medicineBoxDetailCabinetMode ?? MedicineBoxMode.FAMILY,
+          archiveListMode: this.homeVm?.medicineBoxDetailArchiveMode ?? MedicalArchiveListMode.ACTIVE,
+          onBack: () => {
+            this.homeVm?.clearMedicineBoxDetailTarget();
+            this.pop();
+          },
+          onSaved: (box: RemoteMedicineBox) => {
+            this.handleMedicineBoxSaved(box);
+          },
+          onDeleted: (boxID: number) => {
+            this.handleMedicineBoxDeleted(boxID);
+            this.homeVm?.clearMedicineBoxDetailTarget();
+            this.pop();
+          },
+          onArchiveStateChanged: (boxID: number, isArchived: boolean) => {
+            this.handleMedicineBoxArchiveChanged(boxID, isArchived);
           }
         })
       } else if (this.routeName === HomeMedicalRoutes.HEALTH_EXAM_REPORTS) {
@@ -280,6 +370,16 @@ struct HomeSecondaryRootPage {
             this.pop();
           }
         })
+      } else if (this.routeName === HomeMedicalRoutes.MEDICATION_PLANS) {
+        MedicationExecutionCenterPage({
+          homeVm: this.homeVm,
+          onBack: () => {
+            this.pop();
+          },
+          onOpenPersonalCabinet: () => {
+            appRouter.jumpPage(HomeMedicalRoutes.PERSONAL_CABINET);
+          }
+        })
       } else if (this.routeName === HomeMedicalRoutes.MEMBER_SETUP_CREATE
         || this.routeName === HomeMedicalRoutes.MEMBER_SETUP_MAINTAIN) {
         if (this.setupReady && this.setupFlowVm) {
@@ -317,6 +417,15 @@ struct HomeSecondaryRootPage {
       }
     }
     .hideTitleBar(true)
+    .onShown(() => {
+      const homeVm = this.homeVm;
+      if (!homeVm) {
+        return;
+      }
+      this.healthExamListRevision = homeVm.healthExamListRevision;
+      this.examinationListRevision = homeVm.examinationListRevision;
+      this.medicineBoxListRevision = homeVm.medicineBoxListRevision;
+    })
     .onBackPressed(() => {
       if (this.routeName === HomeMedicalRoutes.MEMBER_SETUP_CREATE
         || this.routeName === HomeMedicalRoutes.MEMBER_SETUP_MAINTAIN) {

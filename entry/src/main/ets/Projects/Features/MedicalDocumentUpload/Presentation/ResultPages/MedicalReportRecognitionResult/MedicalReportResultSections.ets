@@ -131,7 +131,7 @@ export struct MedicalReportCardsSectionView {
 
   @Builder
   private MatchedAttachments(index: number, report: MedicalReportRecognitionDraft) {
-    if (this.viewModel.typedDraftRevision >= 0 && report.attachmentFileIds.length > 0) {
+    if (report.attachmentFileIds.length > 0) {
       CaseMatchedAttachmentsGridView({
         title: '匹配附件',
         attachments: MedicalReportResultSupport.matchedAttachments(this.viewModel, report.attachmentFileIds),
@@ -218,11 +218,7 @@ export struct MedicalReportCardsSectionView {
         this.CategoryHeader(category, indices.length)
         ForEach(indices, (index: number) => {
           this.ReportCard(index, this.reports()[index], category)
-        }, (index: number): string => {
-          const report = this.reports()[index];
-          return `mr-card-${index}-${this.viewModel.typedDraftRevision}-` +
-            `${report.attachmentFileIds.join(',')}`;
-        })
+        }, (index: number): string => `mr-card-${index}`)
       }
       .width('100%')
     }

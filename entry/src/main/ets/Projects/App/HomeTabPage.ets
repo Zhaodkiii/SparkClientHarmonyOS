@@ -7,6 +7,11 @@ import { HomeSetupFlowHolder } from '../Features/Home/Presentation/HomeSetupFlow
 import { HomeViewModel } from '../Features/Home/Presentation/HomeViewModel';
 import { MedicalInfoSection } from '../Features/Home/Presentation/MedicalInfoSection';
 import { MedicalDocumentUploadEntryFactory } from '../Features/MedicalDocumentUpload/Application/MedicalDocumentUploadEntryFactory';
+import { MedicalDocumentKind } from '../Features/MedicalDocumentUpload/Domain/MedicalDocumentKind';
+import { MedicalUploadLocalFile } from '../Features/MedicalDocumentUpload/Domain/MedicalDocumentUploadModels';
+import {
+  medicalDocumentUploadStartBridge
+} from '../Features/MedicalDocumentUpload/Presentation/MedicalDocumentUploadStartBridge';
 import { MedicalDocumentUploadHostView } from '../Features/MedicalDocumentUpload/Presentation/MedicalDocumentUploadHostView';
 import { MedicalDocumentUploadViewModel } from '../Features/MedicalDocumentUpload/Presentation/MedicalDocumentUploadViewModel';
 import { MemberDetailPage } from '../Features/Home/Presentation/Members/MemberDetailPage';
@@ -16,6 +21,13 @@ import { Logger } from '../../Foundation/Logging/Logger';
 import { LogFields } from '../../Foundation/Logging/LogEvent';
 import { LogModule } from '../../Foundation/Logging/LogModule';
 import { promptAction } from '@kit.ArkUI';
+
+/** 首页全屏 Cover 类型。同一节点仅挂一个 bindContentCover，成员详情与 AI 上传统一由此承载。 */
+enum HomeTabOverlay {
+  NONE = 'none',
+  MEMBER_DETAIL = 'memberDetail',
+  MEDICAL_UPLOAD = 'medicalUpload'
+}
 
 /** 首页 Tab 根内容；二级页经 appRouter 压入根栈，跳转后隐藏底部 Tab。 */
 @Component
@@ -36,8 +48,8 @@ export struct HomeTabPage {
   @State private showModuleMaintenance: boolean = false;
   @State private showMemberEditorSheet: boolean = false;
   @State private isMemberEditorCreate: boolean = true;
-  @State private showMemberDetailCover: boolean = false;
-  @State private showMedicalDocumentUploadCover: boolean = false;
+  @State private showHomeOverlayCover: boolean = false;
+  @State private activeHomeOverlay: HomeTabOverlay = HomeTabOverlay.NONE;
   @State private medicalUploadReady: boolean = false;
   @State private refreshing: boolean = false;
   @State private medicalUploadVm: MedicalDocumentUploadViewModel | undefined = undefined;
@@ -49,6 +61,9 @@ export struct HomeTabPage {
     }
     this.vm = container.createHomeViewModel();
     this.ensureMedicalUploadViewModel();
+    medicalDocumentUploadStartBridge.bind((files: MedicalUploadLocalFile[], kind: MedicalDocumentKind): void => {
+      this.startMedicalDocumentRecognitionFromList(files, kind);
+    });
     this.vm.setOnChanged(() => {
       this.syncFromViewModel();
     });
@@ -85,7 +100,7 @@ export struct HomeTabPage {
     openFields.operation = 'medical_upload_entry';
     openFields.detail =
       `ready=${this.medicalUploadReady};hasVm=${this.medicalUploadVm !== undefined};` +
-      `cover=${this.showMedicalDocumentUploadCover}`;
+      `cover=${this.showHomeOverlayCover}`;
     Logger.info('medical.upload.home.open_tap', LogModule.HOME, openFields);
 
     const vm = this.ensureMedicalUploadViewModel();
@@ -102,7 +117,7 @@ export struct HomeTabPage {
       this.selectedMemberName
     );
     vm.prepareForEntry(entry);
-    this.showMedicalDocumentUploadCover = true;
+    this.openHomeOverlay(HomeTabOverlay.MEDICAL_UPLOAD);
 
     const okFields = new LogFields();
     okFields.operation = 'medical_upload_entry';
@@ -113,6 +128,39 @@ export struct HomeTabPage {
     Logger.info('medical.upload.home.open_ok', LogModule.HOME, okFields);
     // 打开上传页后立即后台预热 OCR（与 Host aboutToAppear 互相去重）。
     vm.prewarmOCR('upload_open');
+  }
+
+  private startMedicalDocumentRecognitionFromList(
+    files: MedicalUploadLocalFile[],
+    kind: MedicalDocumentKind
+  ): void {
+    if (files.length === 0) {
+      promptAction.showToast({ message: '请先选择文件' });
+      return;
+    }
+    const vm = this.ensureMedicalUploadViewModel();
+    if (!vm) {
+      promptAction.showToast({ message: '上传模块暂不可用，请稍后重试' });
+      return;
+    }
+    vm.prepareAndStart(
+      files.map((file: MedicalUploadLocalFile) => file.toAttachment()),
+      kind
+    );
+    this.openHomeOverlay(HomeTabOverlay.MEDICAL_UPLOAD);
+  }
+
+  private openHomeOverlay(overlay: HomeTabOverlay): void {
+    this.activeHomeOverlay = overlay;
+    this.showHomeOverlayCover = true;
+  }
+
+  private dismissHomeOverlay(): void {
+    this.showHomeOverlayCover = false;
+  }
+
+  private clearHomeOverlay(): void {
+    this.activeHomeOverlay = HomeTabOverlay.NONE;
   }
 
   /**
@@ -135,25 +183,52 @@ export struct HomeTabPage {
   }
 
   @Builder
-  private medicalDocumentUploadCoverBuilder() {
-    if (this.medicalUploadReady && this.medicalUploadVm) {
-      MedicalDocumentUploadHostView({
-        viewModel: this.medicalUploadVm,
+  private homeOverlayCoverBuilder() {
+    if (this.activeHomeOverlay === HomeTabOverlay.MEMBER_DETAIL && this.memberDetailTarget) {
+      MemberDetailPage({
+        member: this.memberDetailTarget,
+        memberUseCase: this.memberUseCase,
         onClose: () => {
-          Logger.info('medical.upload.home.cover_close', LogModule.HOME);
-          this.medicalUploadVm?.dismiss();
-          this.showMedicalDocumentUploadCover = false;
+          this.dismissHomeOverlay();
+        },
+        onEdit: () => {
+          this.dismissHomeOverlay();
+          if (this.memberDetailTarget) {
+            this.openMemberEditor(this.memberDetailTarget);
+          }
+        },
+        onMaintainModules: () => {
+          if (this.memberDetailTarget) {
+            this.dismissHomeOverlay();
+            this.openMaintainModulesFor(this.memberDetailTarget);
+          }
+        },
+        onDeleted: () => {
+          this.handleMemberDeleted();
         }
       })
         .width('100%')
         .height('100%')
-    } else {
-      Text('上传模块未装配')
-        .width('100%')
-        .height('100%')
-        .fontSize(14)
-        .fontColor('#888888')
-        .textAlign(TextAlign.Center)
+    } else if (this.activeHomeOverlay === HomeTabOverlay.MEDICAL_UPLOAD) {
+      if (this.medicalUploadReady && this.medicalUploadVm) {
+        MedicalDocumentUploadHostView({
+          viewModel: this.medicalUploadVm,
+          onClose: () => {
+            Logger.info('medical.upload.home.cover_close', LogModule.HOME);
+            this.medicalUploadVm?.dismiss();
+            this.dismissHomeOverlay();
+          }
+        })
+          .width('100%')
+          .height('100%')
+      } else {
+        Text('上传模块未装配')
+          .width('100%')
+          .height('100%')
+          .fontSize(14)
+          .fontColor('#888888')
+          .textAlign(TextAlign.Center)
+      }
     }
   }
 
@@ -198,15 +273,15 @@ export struct HomeTabPage {
     const fields = new LogFields();
     fields.code = member.id;
     fields.operation = 'open_member_detail';
-    fields.detail = `before target=${this.memberDetailTarget?.id ?? 'none'}, cover=${this.showMemberDetailCover}`;
+    fields.detail = `before target=${this.memberDetailTarget?.id ?? 'none'}, cover=${this.showHomeOverlayCover}`;
     Logger.info('member.detail.open_requested', LogModule.HOME, fields);
     this.memberDetailTarget = member;
     this.memberUseCaseForPage();
-    this.showMemberDetailCover = true;
+    this.openHomeOverlay(HomeTabOverlay.MEMBER_DETAIL);
     const stateFields = new LogFields();
     stateFields.code = member.id;
     stateFields.operation = 'open_member_detail';
-    stateFields.detail = `after target=${this.memberDetailTarget?.id ?? 'none'}, cover=${this.showMemberDetailCover}, useCase=${this.memberUseCase !== undefined}`;
+    stateFields.detail = `after target=${this.memberDetailTarget?.id ?? 'none'}, cover=${this.showHomeOverlayCover}, useCase=${this.memberUseCase !== undefined}`;
     Logger.info('member.detail.state_updated', LogModule.HOME, stateFields);
   }
 
@@ -258,7 +333,7 @@ export struct HomeTabPage {
     const homeVm = this.vm;
     if (!homeVm) return;
     this.memberDetailTarget = undefined;
-    this.showMemberDetailCover = false;
+    this.dismissHomeOverlay();
     await homeVm.refresh();
   }
 
@@ -306,24 +381,6 @@ export struct HomeTabPage {
         memberUseCase: this.memberUseCase,
         onClose: () => this.showMemberEditorSheet = false,
         onSaved: (member: Member) => this.handleMemberSaved(member)
-      })
-    }
-  }
-
-  @Builder
-  memberDetailCoverBuilder() {
-    if (this.memberDetailTarget) {
-      MemberDetailPage({
-        member: this.memberDetailTarget,
-        memberUseCase: this.memberUseCase,
-        onClose: () => this.showMemberDetailCover = false,
-        onEdit: () => {
-          if (this.memberDetailTarget) this.openMemberEditor(this.memberDetailTarget);
-        },
-        onMaintainModules: () => {
-          if (this.memberDetailTarget) this.openMaintainModulesFor(this.memberDetailTarget);
-        },
-      onDeleted: () => this.handleMemberDeleted()
       })
     }
   }
@@ -509,7 +566,7 @@ export struct HomeTabPage {
 
   build() {
     Stack() {
-      // 每个容器只绑定一个 ContentCover，避免 HarmonyOS Overlay 节点互相卸载。
+      // bindSheet 与 bindContentCover 不可挂在同一节点；Sheet 仅承载成员编辑。
       Stack() {
         this.homeRootContent()
       }
@@ -522,18 +579,14 @@ export struct HomeTabPage {
           this.showMemberEditorSheet = false;
         }
       })
-      .bindContentCover($$this.showMemberDetailCover, this.memberDetailCoverBuilder(), {
-        modalTransition: ModalTransition.DEFAULT,
-        backgroundColor: '#F7F7F8'
-      })
       .width('100%')
       .height('100%')
     }
-    .bindContentCover($$this.showMedicalDocumentUploadCover, this.medicalDocumentUploadCoverBuilder(), {
+    .bindContentCover($$this.showHomeOverlayCover, this.homeOverlayCoverBuilder(), {
       modalTransition: ModalTransition.DEFAULT,
-      backgroundColor: '#F2F2F7',
+      backgroundColor: '#F2F7F8',
       onDisappear: () => {
-        this.showMedicalDocumentUploadCover = false;
+        this.clearHomeOverlay();
       }
     })
     .width('100%')

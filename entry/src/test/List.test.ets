@@ -39,6 +39,9 @@ import medicalDocumentUpload0009Test from './ets/MedicalDocumentUpload/MedicalDo
 import medicalDocumentUpload0010Test from './ets/MedicalDocumentUpload/MedicalDocumentUpload0010.test';
 import medicalDocumentUpload0011Test from './ets/MedicalDocumentUpload/MedicalDocumentUpload0011.test';
 import medicalDocumentUpload0012Test from './ets/MedicalDocumentUpload/MedicalDocumentUpload0012.test';
+import medicalDocumentUpload0019Test from './ets/MedicalDocumentUpload/MedicalDocumentUpload0019.test';
+import medicationExecutionCenterTest from './ets/MedicationExecution/MedicationExecutionCenter.test';
+import medicationExecutionDateStripScrollMathTest from './ets/MedicationExecution/MedicationExecutionDateStripScrollMath.test';
 import providerCatalogOverlayTest from './ets/AI/ProviderCatalogOverlay.test';
 
 export default function testsuite() {
@@ -84,4 +87,7 @@ export default function testsuite() {
   medicalDocumentUpload0010Test();
   medicalDocumentUpload0011Test();
   medicalDocumentUpload0012Test();
+  medicalDocumentUpload0019Test();
+  medicationExecutionCenterTest();
+  medicationExecutionDateStripScrollMathTest();
 }

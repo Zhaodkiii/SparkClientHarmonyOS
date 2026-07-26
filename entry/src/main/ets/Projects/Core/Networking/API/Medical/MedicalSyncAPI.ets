@@ -479,13 +479,54 @@ export class RemoteExaminationReportWithAttachments {
   }
 }
 
+/** 用药计划提醒时间点。对齐 iOS ReminderTime。 */
+export class RemoteReminderTime {
+  time: string = '';
+  dose?: number;
+  doseText?: string;
+
+  static fromJson(data: Object | null): RemoteReminderTime {
+    const obj = SupportAPIResponseDecoder.asRecord(data);
+    const item = new RemoteReminderTime();
+    item.time = SupportAPIResponseDecoder.strAny(obj, ['time'], '');
+    item.dose = SupportAPIResponseDecoder.optNum(obj, 'dose');
+    item.doseText = SupportAPIResponseDecoder.optStrAny(obj, ['dose_text', 'doseText']);
+    return item;
+  }
+
+  static listFromJson(data: Object | null): RemoteReminderTime[] {
+    const arr = medicalAsArray(data);
+    const out: RemoteReminderTime[] = [];
+    for (let i = 0; i < arr.length; i++) {
+      out.push(RemoteReminderTime.fromJson(arr[i]));
+    }
+    return out;
+  }
+}
+
 export class RemoteMedicationPlan {
   id: number = 0;
   member: number = 0;
+  medicalCase?: number;
+  medicineBox?: number;
+  prescription?: number;
   drugName: string = '';
+  dosePerTime: string = '';
+  doseValue?: number;
+  doseUnit: string = '';
+  frequencyType: string = 'daily';
+  everyNDays?: number;
+  weeklyWeekdays: number[] = [];
+  frequencyText: string = '';
+  reminderTimes: RemoteReminderTime[] = [];
+  startDate: string = '';
+  endDate?: string;
+  instructions: string = '';
   status: string = '';
   updatedAt: string = '';
   reminderEnabled: boolean = false;
+  extra: Record<string, string> = {};
+  attachments: RemoteManagedFile[] = [];
   isArchived: boolean = false;
 
   static fromJson(data: Object | null): RemoteMedicationPlan {
@@ -493,12 +534,44 @@ export class RemoteMedicationPlan {
     const m = new RemoteMedicationPlan();
     m.id = SupportAPIResponseDecoder.num(obj, 'id', 0);
     m.member = SupportAPIResponseDecoder.num(obj, 'member', 0);
+    m.medicalCase = SupportAPIResponseDecoder.optNumAny(obj, ['medical_case', 'medicalCase']);
+    m.medicineBox = SupportAPIResponseDecoder.optNumAny(obj, ['medicine_box', 'medicineBox']);
+    m.prescription = SupportAPIResponseDecoder.optNumAny(obj, ['prescription']);
     m.drugName = SupportAPIResponseDecoder.strAny(obj, ['drug_name', 'drugName'], '');
+    m.dosePerTime = SupportAPIResponseDecoder.strAny(obj, ['dose_per_time', 'dosePerTime'], '');
+    m.doseValue = SupportAPIResponseDecoder.optNumAny(obj, ['dose_value', 'doseValue']);
+    m.doseUnit = SupportAPIResponseDecoder.strAny(obj, ['dose_unit', 'doseUnit'], '');
+    m.frequencyType = SupportAPIResponseDecoder.strAny(obj, ['frequency_type', 'frequencyType'], 'daily');
+    m.everyNDays = SupportAPIResponseDecoder.optNumAny(obj, ['every_n_days', 'everyNDays']);
+    m.weeklyWeekdays = RemoteMedicationPlan.parseIntArray(obj['weekly_weekdays'] ?? obj['weeklyWeekdays']);
+    m.frequencyText = SupportAPIResponseDecoder.strAny(obj, ['frequency_text', 'frequencyText'], '');
+    m.reminderTimes = RemoteReminderTime.listFromJson(
+      obj['reminder_times'] ?? obj['reminderTimes']
+    );
+    m.startDate = SupportAPIResponseDecoder.strAny(obj, ['start_date', 'startDate'], '');
+    m.endDate = SupportAPIResponseDecoder.optStrAny(obj, ['end_date', 'endDate']);
+    m.instructions = SupportAPIResponseDecoder.strAny(obj, ['instructions'], '');
     m.status = SupportAPIResponseDecoder.str(obj, 'status', '');
     m.updatedAt = SupportAPIResponseDecoder.strAny(obj, ['updated_at', 'updatedAt'], '');
     m.reminderEnabled = SupportAPIResponseDecoder.boolAny(obj, ['reminder_enabled', 'reminderEnabled'], false);
+    m.extra = medicalStringMap(obj['extra']);
+    m.attachments = RemoteManagedFile.listFromJson(obj['attachments']);
     m.isArchived = SupportAPIResponseDecoder.boolAny(obj, ['is_archived', 'isArchived'], false);
     return m;
+  }
+
+  private static parseIntArray(raw: Object | null | undefined): number[] {
+    if (!Array.isArray(raw)) {
+      return [];
+    }
+    const out: number[] = [];
+    for (let i = 0; i < raw.length; i++) {
+      const value = Number(raw[i]);
+      if (!Number.isNaN(value)) {
+        out.push(value);
+      }
+    }
+    return out;
   }
 
   static listFromJson(data: Object | null): RemoteMedicationPlan[] {
@@ -595,6 +668,13 @@ export class RemoteMedicationRecord {
   plan: number = 0;
   status: string = '';
   scheduledAt: string = '';
+  takenAt?: string;
+  plannedDose: string = '';
+  actualDose: string = '';
+  doseSequence: number = 0;
+  timezone: string = '';
+  notes: string = '';
+  extra: Record<string, string> = {};
   updatedAt: string = '';
 
   static fromJson(data: Object | null): RemoteMedicationRecord {
@@ -605,6 +685,13 @@ export class RemoteMedicationRecord {
     m.plan = SupportAPIResponseDecoder.num(obj, 'plan', 0);
     m.status = SupportAPIResponseDecoder.str(obj, 'status', '');
     m.scheduledAt = SupportAPIResponseDecoder.strAny(obj, ['scheduled_at', 'scheduledAt'], '');
+    m.takenAt = SupportAPIResponseDecoder.optStrAny(obj, ['taken_at', 'takenAt']);
+    m.plannedDose = SupportAPIResponseDecoder.strAny(obj, ['planned_dose', 'plannedDose'], '');
+    m.actualDose = SupportAPIResponseDecoder.strAny(obj, ['actual_dose', 'actualDose'], '');
+    m.doseSequence = SupportAPIResponseDecoder.numAny(obj, ['dose_sequence', 'doseSequence'], 0);
+    m.timezone = SupportAPIResponseDecoder.strAny(obj, ['timezone'], '');
+    m.notes = SupportAPIResponseDecoder.strAny(obj, ['notes'], '');
+    m.extra = medicalStringMap(obj['extra']);
     m.updatedAt = SupportAPIResponseDecoder.strAny(obj, ['updated_at', 'updatedAt'], '');
     return m;
   }

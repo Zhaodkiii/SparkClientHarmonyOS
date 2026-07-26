@@ -17,6 +17,8 @@ import { MedicalReportRecognitionDraft } from
   '../../../../MedicalDocumentUpload/Domain/MedicalDocumentRecognitionDrafts';
 import { ExamReportFormView } from
   '../../../../MedicalRecord/Presentation/NewRecord/Forms/ExamReportFormView';
+import { ExamReportFormContext } from
+  '../../../../MedicalRecord/Presentation/NewRecord/Forms/ExamReportFormContext';
 import { ExamReportFormModeKind } from
   '../../../../MedicalRecord/Presentation/NewRecord/Forms/ExamReportFormMode';
 import { HomeViewModel } from '../../HomeViewModel';
@@ -31,6 +33,67 @@ import { ExaminationReportDraftMapping } from './ExaminationReportDraftMapping';
 import { ExaminationSubitemDetailTarget } from './ExaminationReportDetailSupport';
 import { ExaminationReportServerMutationService } from './ExaminationReportServerMutationService';
 import { ExaminationReportSummaryDetailPage } from './ExaminationReportSummaryDetailPage';
+import {
+  MEDICAL_LIST_ACCENT,
+  MEDICAL_LIST_HEADER_BG,
+  MEDICAL_LIST_PAGE_BG
+} from '../Shared/MedicalListPageChrome';
+
+/** 检查报告详情导航栏右侧 ⋯ 菜单。独立组件挂载，避免 @BuilderParam this 错位。 */
+@Component
+struct ExaminationReportDetailHeaderTrailing {
+  @Prop disabled: boolean = false;
+  @Prop menuDisabled: boolean = false;
+  @Prop showShare: boolean = false;
+  @Prop showArchive: boolean = false;
+  @Prop archiveTitle: string = '归档';
+  onShare: () => void = () => {
+  };
+  onEdit: () => void = () => {
+  };
+  onArchive: () => void = () => {
+  };
+  onDelete: () => void = () => {
+  };
+
+  private buildMenuItems(): ExaminationReportDetailMenuItem[] {
+    const items: ExaminationReportDetailMenuItem[] = [];
+    if (this.showShare) {
+      items.push(new ExaminationReportDetailMenuItem('分享', (): void => {
+        if (!this.menuDisabled) {
+          this.onShare();
+        }
+      }));
+    }
+    items.push(new ExaminationReportDetailMenuItem('编辑', (): void => {
+      this.onEdit();
+    }));
+    if (this.showArchive) {
+      items.push(new ExaminationReportDetailMenuItem(this.archiveTitle, (): void => {
+        if (!this.menuDisabled) {
+          this.onArchive();
+        }
+      }));
+    }
+    items.push(new ExaminationReportDetailMenuItem('删除', (): void => {
+      if (!this.menuDisabled) {
+        this.onDelete();
+      }
+    }));
+    return items;
+  }
+
+  build() {
+    Button('⋯')
+      .fontSize(24)
+      .fontColor(this.disabled ? '#AEAEB2' : MEDICAL_LIST_ACCENT)
+      .backgroundColor(Color.Transparent)
+      .width(44)
+      .height(44)
+      .enabled(!this.disabled)
+      .bindMenu(this.buildMenuItems())
+  }
+}
 
 export enum ExaminationReportDetailMode {
   SERVER = 'server',
@@ -84,6 +147,7 @@ export struct ExaminationReportDetailPage {
   @State private category: ExaminationReportCategory = 'laboratory';
   @State private sourceDraft?: MedicalReportRecognitionDraft = undefined;
   @State private editFormSession: number = 0;
+  @State private editFormContext: ExamReportFormContext = new ExamReportFormContext();
   @State private activeOverlay: ExaminationReportDetailOverlay = ExaminationReportDetailOverlay.NONE;
   @State private busy: boolean = false;
   @State private isLoadingDetails: boolean = false;
@@ -92,7 +156,6 @@ export struct ExaminationReportDetailPage {
   @State private isArchived: boolean = false;
   @State private contentTick: number = 0;
   @State private subitemTarget: ExaminationSubitemDetailTarget = new ExaminationSubitemDetailTarget();
-  @StorageProp('topRectHeight') private topRectHeightPx: number = 0;
 
   private archiveMode: MedicalArchiveListMode = MedicalArchiveListMode.ACTIVE;
   private notification?: NotificationClient;
@@ -146,14 +209,6 @@ export struct ExaminationReportDetailPage {
     return '检查报告';
   }
 
-  private topSafeInset(): number {
-    if (this.topRectHeightPx > 0) {
-      return this.getUIContext().px2vp(this.topRectHeightPx);
-    }
-    // 避让区尚未回调时保留常见状态栏高度，避免首帧按钮落入状态栏。
-    return 24;
-  }
-
   /** 分享/归档/删除在忙时禁用；编辑不受详情懒加载影响。对齐 iOS 编辑入口始终可达。 */
   private destructiveActionsDisabled(): boolean {
     return this.busy || this.isPreparingShare;
@@ -167,6 +222,21 @@ export struct ExaminationReportDetailPage {
   private openEditForm(): void {
     if (this.busy) {
       return;
+    }
+    if (this.detailMode === ExaminationReportDetailMode.LOCAL_DRAFT) {
+      this.editFormContext.modeKind = ExamReportFormModeKind.LOCAL_EDIT;
+      this.editFormContext.existingDraft = this.currentSourceDraft();
+      this.editFormContext.existingReport = undefined;
+      this.editFormContext.mutationService = undefined;
+      this.editFormContext.memberID = 0;
+      this.editFormContext.medicalCaseID = undefined;
+    } else {
+      this.editFormContext.modeKind = ExamReportFormModeKind.SERVER_EDIT;
+      this.editFormContext.existingReport = this.report;
+      this.editFormContext.existingDraft = undefined;
+      this.editFormContext.mutationService = this.mutationService;
+      this.editFormContext.memberID = this.report.member;
+      this.editFormContext.medicalCaseID = this.report.medicalRecord;
     }
     this.editFormSession += 1;
     this.activeOverlay = ExaminationReportDetailOverlay.EDIT;
@@ -207,34 +277,57 @@ export struct ExaminationReportDetailPage {
    * 导航栏右侧 ⋯ 菜单项。对齐 iOS `ExaminationReportDetailPage` toolbar Menu：
    * 分享 → 编辑 → 归档/取消归档（仅服务端）→ 删除。
    */
-  private toolbarMenuItems(): ExaminationReportDetailMenuItem[] {
-    const items: ExaminationReportDetailMenuItem[] = [];
-    if (this.detailMode === ExaminationReportDetailMode.SERVER) {
-      items.push(new ExaminationReportDetailMenuItem('分享', (): void => {
-        if (!this.toolbarMenuDisabled()) {
-          void this.prepareShare();
+  @Builder
+  private detailHeader() {
+    Column({ space: 0 }) {
+      Row() {
+        Text('‹ 返回')
+          .fontSize(16)
+          .fontColor(MEDICAL_LIST_ACCENT)
+          .width(64)
+          .onClick(() => {
+            if (this.onBack) {
+              this.onBack();
+            }
+          })
+        Text(this.titleText())
+          .fontSize(17)
+          .fontWeight(FontWeight.Medium)
+          .fontColor('#1C1C1E')
+          .maxLines(1)
+          .textOverflow({ overflow: TextOverflow.Ellipsis })
+          .layoutWeight(1)
+          .textAlign(TextAlign.Center)
+        Row() {
+          ExaminationReportDetailHeaderTrailing({
+            disabled: this.destructiveActionsDisabled(),
+            menuDisabled: this.toolbarMenuDisabled(),
+            showShare: this.detailMode === ExaminationReportDetailMode.SERVER,
+            showArchive: this.detailMode === ExaminationReportDetailMode.SERVER,
+            archiveTitle: this.isArchived ? '取消归档' : '归档',
+            onShare: () => {
+              void this.prepareShare();
+            },
+            onEdit: () => {
+              this.openEditForm();
+            },
+            onArchive: () => {
+              this.openOverlay(ExaminationReportDetailOverlay.ARCHIVE);
+            },
+            onDelete: () => {
+              this.openOverlay(ExaminationReportDetailOverlay.DELETE);
+            }
+          })
         }
-      }));
-    }
-    items.push(new ExaminationReportDetailMenuItem('编辑', (): void => {
-      this.openEditForm();
-    }));
-    if (this.detailMode === ExaminationReportDetailMode.SERVER) {
-      items.push(new ExaminationReportDetailMenuItem(
-        this.isArchived ? '取消归档' : '归档',
-        (): void => {
-          if (!this.toolbarMenuDisabled()) {
-            this.openOverlay(ExaminationReportDetailOverlay.ARCHIVE);
-          }
-        }
-      ));
-    }
-    items.push(new ExaminationReportDetailMenuItem('删除', (): void => {
-      if (!this.toolbarMenuDisabled()) {
-        this.openOverlay(ExaminationReportDetailOverlay.DELETE);
+        .width(64)
+        .justifyContent(FlexAlign.End)
       }
-    }));
-    return items;
+      .width('100%')
+      .padding({ left: 16, right: 16, top: 12, bottom: 8 })
+    }
+    .width('100%')
+    .backgroundColor(MEDICAL_LIST_HEADER_BG)
+    .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP])
   }
 
   private currentSourceDraft(): MedicalReportRecognitionDraft {
@@ -314,7 +407,7 @@ export struct ExaminationReportDetailPage {
     if (this.detailMode !== ExaminationReportDetailMode.SERVER) {
       return;
     }
-    if (this.report.detailsLoaded || this.report.medExamDetails.length > 0) {
+    if (this.report.detailsLoaded) {
       return;
     }
     const api = this.medicalQueryAPI;
@@ -471,33 +564,19 @@ export struct ExaminationReportDetailPage {
 
   @Builder
   private editSheetContent() {
-    if (this.detailMode === ExaminationReportDetailMode.LOCAL_DRAFT) {
-      ExamReportFormView({
-        formSession: this.editFormSession,
-        modeKind: ExamReportFormModeKind.LOCAL_EDIT,
-        existingDraft: this.currentSourceDraft(),
-        onLocalSubmit: (draft: MedicalReportRecognitionDraft) => {
-          this.applyLocalDraftReport(draft);
-        },
-        onCancel: () => {
-          this.closeEditForm();
-        }
-      })
-    } else {
-      ExamReportFormView({
-        formSession: this.editFormSession,
-        modeKind: ExamReportFormModeKind.SERVER_EDIT,
-        existingReport: this.report,
-        mutationService: this.mutationService,
-        onServerSaved: (draft: MedicalReportRecognitionDraft) => {
-          this.applyServerDraftSaved(draft);
-          this.closeEditForm();
-        },
-        onCancel: () => {
-          this.closeEditForm();
-        }
-      })
-    }
+    ExamReportFormView({
+      formSession: this.editFormSession,
+      formContext: this.editFormContext,
+      onLocalSubmit: (draft: MedicalReportRecognitionDraft) => {
+        this.applyLocalDraftReport(draft);
+      },
+      onServerSaved: (draft: MedicalReportRecognitionDraft) => {
+        this.applyServerDraftSaved(draft);
+      },
+      onCancel: () => {
+        this.closeEditForm();
+      }
+    })
   }
 
   @Builder
@@ -516,35 +595,7 @@ export struct ExaminationReportDetailPage {
   @Builder
   private detailChrome() {
     Column() {
-      Row() {
-        Text('‹ 返回')
-          .fontSize(16)
-          .fontColor('#0A84FF')
-          .width(64)
-          .onClick(() => {
-            if (this.onBack) {
-              this.onBack();
-            }
-          })
-        Text(this.titleText())
-          .fontSize(17)
-          .fontWeight(FontWeight.Medium)
-          .maxLines(1)
-          .textOverflow({ overflow: TextOverflow.Ellipsis })
-          .layoutWeight(1)
-          .textAlign(TextAlign.Center)
-        Button('⋯')
-          .fontSize(24)
-          .fontColor(this.destructiveActionsDisabled() ? '#AEAEB2' : '#0A84FF')
-          .backgroundColor(Color.Transparent)
-          .width(44)
-          .height(44)
-          .enabled(!this.destructiveActionsDisabled())
-          .bindMenu(this.toolbarMenuItems())
-      }
-      .width('100%')
-      .padding({ left: 16, right: 16, top: this.topSafeInset() + 12, bottom: 8 })
-      .backgroundColor(Color.White)
+      this.detailHeader()
 
       if (this.busy || this.isLoadingDetails || this.isPreparingShare) {
         LoadingProgress().width(24).height(24).margin({ bottom: 8 })
@@ -558,27 +609,34 @@ export struct ExaminationReportDetailPage {
           .padding({ left: 16, right: 16, bottom: 8 })
       }
 
-      ExaminationReportSummaryDetailPage({
-        homeVm: this.detailMode === ExaminationReportDetailMode.SERVER ? this.homeVm : undefined,
-        report: this.report,
-        category: this.category,
-        contentTick: this.contentTick,
-        localAttachmentNames: this.localAttachmentNames,
-        fileTransferService: this.fileTransferService,
-        onOpenSubitemDetail: this.detailMode === ExaminationReportDetailMode.SERVER ?
-          this.onOpenSubitemDetail : undefined,
-        onRequestSubitemDetail: this.detailMode === ExaminationReportDetailMode.LOCAL_DRAFT ?
-          (target: ExaminationSubitemDetailTarget) => {
-            this.openLocalSubitem(target);
-          } : undefined,
-        onAttachmentsUpdated: this.detailMode === ExaminationReportDetailMode.SERVER ?
-          (merged: RemoteExaminationReportWithAttachments) => {
-            this.report = merged;
-            if (this.onSaved) {
-              this.onSaved(merged);
-            }
-          } : undefined
-      })
+      Scroll() {
+        ExaminationReportSummaryDetailPage({
+          homeVm: this.detailMode === ExaminationReportDetailMode.SERVER ? this.homeVm : undefined,
+          report: this.report,
+          category: this.category,
+          contentTick: this.contentTick,
+          localAttachmentNames: this.localAttachmentNames,
+          fileTransferService: this.fileTransferService,
+          onOpenSubitemDetail: this.detailMode === ExaminationReportDetailMode.SERVER ?
+            this.onOpenSubitemDetail : undefined,
+          onRequestSubitemDetail: this.detailMode === ExaminationReportDetailMode.LOCAL_DRAFT ?
+            (target: ExaminationSubitemDetailTarget) => {
+              this.openLocalSubitem(target);
+            } : undefined,
+          onAttachmentsUpdated: this.detailMode === ExaminationReportDetailMode.SERVER ?
+            (merged: RemoteExaminationReportWithAttachments) => {
+              this.report = merged;
+              if (this.onSaved) {
+                this.onSaved(merged);
+              }
+            } : undefined
+        })
+      }
+      .layoutWeight(1)
+      .width('100%')
+      .scrollBar(BarState.Off)
+      .edgeEffect(EdgeEffect.Spring)
+      .backgroundColor(MEDICAL_LIST_PAGE_BG)
     }
     .width('100%')
     .layoutWeight(1)
@@ -607,7 +665,7 @@ export struct ExaminationReportDetailPage {
       Row({ space: 12 }) {
         Button('取消')
           .layoutWeight(1)
-          .backgroundColor('#F2F2F7')
+          .backgroundColor(MEDICAL_LIST_PAGE_BG)
           .fontColor('#1C1C1E')
           .onClick(() => {
             this.closeOverlay();
@@ -638,7 +696,7 @@ export struct ExaminationReportDetailPage {
       Row({ space: 12 }) {
         Button('取消')
           .layoutWeight(1)
-          .backgroundColor('#F2F2F7')
+          .backgroundColor(MEDICAL_LIST_PAGE_BG)
           .fontColor('#1C1C1E')
           .onClick(() => {
             this.closeOverlay();
@@ -663,11 +721,12 @@ export struct ExaminationReportDetailPage {
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#F2F2F7')
+    .backgroundColor(MEDICAL_LIST_PAGE_BG)
     .bindSheet(this.overlaySheetVisible(), this.overlaySheetContent, {
       height: this.overlaySheetLarge() ? SheetSize.LARGE : SheetSize.FIT_CONTENT,
       dragBar: true,
-      showClose: true,
+      showClose: this.activeOverlay !== ExaminationReportDetailOverlay.EDIT,
+      backgroundColor: '#F2F2F7',
       onDisappear: () => {
         this.closeOverlay();
       }

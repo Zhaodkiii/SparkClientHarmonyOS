@@ -6,6 +6,13 @@ export type ExaminationReportCategory = 'laboratory' | 'imaging' | 'pathology';
 
 export type ExaminationFilterKey = 'all' | ExaminationReportCategory;
 
+/** 全部检查类型。对齐 iOS `ExaminationReportCategory.allCases`。 */
+export const EXAMINATION_REPORT_CATEGORY_ALL: ExaminationReportCategory[] = [
+  'laboratory',
+  'imaging',
+  'pathology'
+];
+
 export function examinationCategoryTitle(category: ExaminationReportCategory): string {
   if (category === 'imaging') {
     return '影像';

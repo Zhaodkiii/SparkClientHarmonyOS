@@ -3,6 +3,7 @@ import {
   RemoteHealthExamReportWithAttachments,
   RemoteMedicalCaseSummary,
   RemoteMedicationPlan,
+  RemoteMedicationRecord,
   RemoteMedicineBox,
   RemotePrescription
 } from '../../../Core/Networking/API/Medical/MedicalSyncAPI';
@@ -89,6 +90,12 @@ export class HomeMedicalRouteSupport {
     });
   }
 
+  static patchTodayMedicationRecords(homeVm: HomeViewModel, records: RemoteMedicationRecord[]): void {
+    homeVm.updateMedicalCompleteData((data) => {
+      data.todayMedicationRecords = records;
+    });
+  }
+
   static patchPrescriptions(homeVm: HomeViewModel, prescriptions: RemotePrescription[]): void {
     homeVm.updateMedicalCompleteData((data) => {
       data.prescriptions = prescriptions;
@@ -104,6 +111,70 @@ export class HomeMedicalRouteSupport {
   static patchFamilyMedicineBoxes(homeVm: HomeViewModel, boxes: RemoteMedicineBox[]): void {
     homeVm.updateMedicalCompleteData((data) => {
       data.familyMedicineBoxes = boxes;
+    });
+  }
+
+  static upsertMedicineBox(homeVm: HomeViewModel, box: RemoteMedicineBox): void {
+    homeVm.updateMedicalCompleteData((data) => {
+      const next: RemoteMedicineBox[] = [];
+      let replaced = false;
+      for (let i = 0; i < data.medicineBoxes.length; i++) {
+        if (data.medicineBoxes[i].id === box.id) {
+          next.push(box);
+          replaced = true;
+        } else {
+          next.push(data.medicineBoxes[i]);
+        }
+      }
+      if (!replaced) {
+        next.push(box);
+      }
+      data.medicineBoxes = next;
+    });
+  }
+
+  static removeMedicineBox(homeVm: HomeViewModel, boxID: number): void {
+    homeVm.updateMedicalCompleteData((data) => {
+      const next: RemoteMedicineBox[] = [];
+      for (let i = 0; i < data.medicineBoxes.length; i++) {
+        if (data.medicineBoxes[i].id !== boxID) {
+          next.push(data.medicineBoxes[i]);
+        }
+      }
+      data.medicineBoxes = next;
+    });
+  }
+
+  static upsertFamilyMedicineBox(homeVm: HomeViewModel, box: RemoteMedicineBox): void {
+    homeVm.updateMedicalCompleteData((data) => {
+      const source = data.familyMedicineBoxes ?? [];
+      const next: RemoteMedicineBox[] = [];
+      let replaced = false;
+      for (let i = 0; i < source.length; i++) {
+        if (source[i].id === box.id) {
+          next.push(box);
+          replaced = true;
+        } else {
+          next.push(source[i]);
+        }
+      }
+      if (!replaced) {
+        next.push(box);
+      }
+      data.familyMedicineBoxes = next;
+    });
+  }
+
+  static removeFamilyMedicineBox(homeVm: HomeViewModel, boxID: number): void {
+    homeVm.updateMedicalCompleteData((data) => {
+      const source = data.familyMedicineBoxes ?? [];
+      const next: RemoteMedicineBox[] = [];
+      for (let i = 0; i < source.length; i++) {
+        if (source[i].id !== boxID) {
+          next.push(source[i]);
+        }
+      }
+      data.familyMedicineBoxes = next;
     });
   }
 }

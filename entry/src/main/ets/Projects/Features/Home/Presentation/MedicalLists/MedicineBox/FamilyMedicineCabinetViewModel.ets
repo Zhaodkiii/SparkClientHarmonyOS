@@ -235,6 +235,11 @@ export class FamilyMedicineCabinetViewModel {
     this.bump();
   }
 
+  replaceFromCache(boxes: RemoteMedicineBox[]): void {
+    this.allBoxes = FamilyMedicineCabinetViewModel.sortedByUpdatedAt(boxes);
+    this.revision += 1;
+  }
+
   upsert(box: RemoteMedicineBox): void {
     if (!this.archiveMode && box.isArchived) {
       this.remove(box.id);

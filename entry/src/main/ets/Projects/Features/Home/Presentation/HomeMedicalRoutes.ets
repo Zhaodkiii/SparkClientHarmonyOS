@@ -13,6 +13,7 @@ export class HomeMedicalRoutes {
   static readonly FAMILY_CABINET: string = 'home.medical.familyCabinet';
   static readonly PERSONAL_CABINET: string = 'home.medical.personalCabinet';
   static readonly MEDICINE_BOX_ARCHIVE: string = 'home.medical.medicineBoxArchive';
+  static readonly MEDICINE_BOX_DETAIL: string = 'home.medical.medicineBox.detail';
   static readonly MEMBER_SETUP_CREATE: string = 'home.member.setup.create';
   static readonly MEMBER_SETUP_MAINTAIN: string = 'home.member.setup.maintain';
   static readonly MEMBER_DETAIL: string = 'home.member.detail';
@@ -62,6 +63,9 @@ export class HomeMedicalRoutes {
     }
     if (route === HomeMedicalRoutes.MEDICINE_BOX_ARCHIVE) {
       return '归档药品';
+    }
+    if (route === HomeMedicalRoutes.MEDICINE_BOX_DETAIL) {
+      return '药品详情';
     }
     if (route === HomeMedicalRoutes.MEMBER_SETUP_CREATE) {
       return '添加成员';

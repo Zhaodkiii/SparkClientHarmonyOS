@@ -4,15 +4,13 @@ import { RemoteMedicineBox } from '../../../../Core/Networking/API/Medical/Medic
 import { SparkMedicalWorkflowAPI } from '../../../../Core/Networking/API/Medical/MedicalWorkflowAPI';
 import { NotificationClient } from '../../../../Core/Notification/Application/NotificationClient';
 import { FileTransferService } from '../../../../../Core/FileStorage/FileTransferService';
-import { MedicalDocumentAttachmentUploader } from './MedicalDocumentAttachmentUploader';
-import { MedicineBoxArchiveMutationService } from './Shared/MedicineBoxArchiveMutationService';
+import { MedicalArchiveListMode } from '../../../../Core/Networking/API/Medical/MedicalArchiveModels';
 import { HomeViewModel } from '../HomeViewModel';
 import { MedicineBoxMode } from './MedicineBox/MedicineBoxMode';
-import { MedicineBoxFormModel } from './MedicineBox/MedicineBoxFormModel';
 import { FamilyMedicineCabinetViewModel } from './MedicineBox/FamilyMedicineCabinetViewModel';
 import { MedicineBoxGridView } from './MedicineBox/MedicineBoxGridView';
-import { MedicineBoxFormPage } from './MedicineBox/MedicineBoxFormPage';
-import { MedicineBoxDetailPage } from './MedicineBox/MedicineBoxDetailPage';
+import { MedicineBoxDraftMapping } from './MedicineBox/MedicineBoxDraftMapping';
+import { MEDICAL_LIST_PAGE_BG, MedicalListPageHeaderChrome } from './Shared/MedicalListPageChrome';
 
 /**
  * 归档药品独立页面，对齐 iOS `MedicineBoxListPage(archiveMode: .archived)`：
@@ -23,21 +21,17 @@ import { MedicineBoxDetailPage } from './MedicineBox/MedicineBoxDetailPage';
 export struct MedicineBoxArchivePage {
   homeVm?: HomeViewModel;
   onBack?: () => void;
+  onOpenDetail?: () => void;
+  @Prop @Watch('onListRevisionChanged') listRevision: number = 0;
 
   @State private viewModel: FamilyMedicineCabinetViewModel =
     new FamilyMedicineCabinetViewModel(0, MedicineBoxMode.PERSONAL, []);
   @State private refreshing: boolean = false;
-  @State private selectedBox?: RemoteMedicineBox = undefined;
-  @State private formTarget?: RemoteMedicineBox = undefined;
-  @State private showDetail: boolean = false;
-  @State private showForm: boolean = false;
 
   private query?: SparkMedicalQueryAPI;
   private workflow?: SparkMedicalWorkflowAPI;
   private notification?: NotificationClient;
   private fileTransfer?: FileTransferService;
-  private attachmentUploader?: MedicalDocumentAttachmentUploader;
-  private archiveMutation?: MedicineBoxArchiveMutationService;
 
   aboutToAppear(): void {
     const container = AppContainer.shared();
@@ -45,16 +39,6 @@ export struct MedicineBoxArchivePage {
     this.workflow = container?.backend.medicalWorkflow;
     this.notification = container?.notificationClient;
     this.fileTransfer = container?.fileTransferService;
-    if (container) {
-      this.attachmentUploader = new MedicalDocumentAttachmentUploader(
-        container.fileTransferService,
-        (): number | undefined => container.accountRuntime.activeAccountId,
-        (): number => container.sessionStore.generation
-      );
-    }
-    if (this.workflow) {
-      this.archiveMutation = new MedicineBoxArchiveMutationService(this.workflow);
-    }
 
     const memberID = this.resolvedMemberID();
     this.viewModel = new FamilyMedicineCabinetViewModel(
@@ -64,12 +48,12 @@ export struct MedicineBoxArchivePage {
       this.query
     );
     this.viewModel.setArchiveMode(true);
-    this.reload();
+    void this.reload(false);
   }
 
-  aboutToDisappear(): void {
-    this.selectedBox = undefined;
-    this.formTarget = undefined;
+  onListRevisionChanged(): void {
+    this.viewModel.replaceFromCache([]);
+    void this.reload();
   }
 
   private resolvedMemberID(): number {
@@ -80,124 +64,38 @@ export struct MedicineBoxArchivePage {
     return this.homeVm?.selectedMemberID ?? 0;
   }
 
-  private async reload(): Promise<void> {
-    this.refreshing = true;
+  private async reload(showRefreshing: boolean = true): Promise<void> {
+    if (showRefreshing) {
+      this.refreshing = true;
+    }
     const succeeded = await this.viewModel.load();
-    this.refreshing = false;
+    if (showRefreshing) {
+      this.refreshing = false;
+    }
     if (!succeeded && this.viewModel.errorMessage.length > 0) {
       this.notification?.error(this.viewModel.errorMessage, undefined, 'home.medical.medicine_box_archive');
     }
   }
 
-  private openEdit(box: RemoteMedicineBox): void {
-    this.formTarget = box;
-    this.showDetail = false;
-    this.showForm = true;
-  }
-
   private openDetail(box: RemoteMedicineBox): void {
-    this.selectedBox = box;
-    this.showDetail = true;
-  }
-
-  private async saveModel(model: MedicineBoxFormModel, existingID?: number): Promise<void> {
-    const workflow = this.workflow;
-    const memberID = this.resolvedMemberID();
-    if (!workflow || memberID <= 0 || existingID === undefined) {
+    const homeVm = this.homeVm;
+    if (!homeVm || !this.onOpenDetail) {
       return;
     }
-    const validation = model.validate();
-    if (validation.length > 0) {
-      this.viewModel.errorMessage = validation;
-      return;
-    }
-    try {
-      const payload = model.toPayload(memberID, true);
-      const saved = await workflow.updateMedicineBox(existingID, payload);
-      this.viewModel.upsert(saved);
-      this.showForm = false;
-    } catch (e) {
-      this.viewModel.errorMessage = `${e}`.substring(0, 160);
-      this.notification?.error(this.viewModel.errorMessage, undefined, 'home.medical.medicine_box_archive');
-    }
-  }
-
-  private async deleteBox(box: RemoteMedicineBox): Promise<void> {
-    const mutation = this.archiveMutation;
-    if (!mutation) {
-      return;
-    }
-    try {
-      await mutation.deleteBox(box.id);
-      this.viewModel.remove(box.id);
-      this.showDetail = false;
-    } catch (e) {
-      this.viewModel.errorMessage = `${e}`.substring(0, 160);
-      this.notification?.error(this.viewModel.errorMessage, undefined, 'home.medical.medicine_box_archive');
-    }
-  }
-
-  private async unarchiveBox(box: RemoteMedicineBox): Promise<void> {
-    const mutation = this.archiveMutation;
-    if (!mutation) {
-      return;
-    }
-    try {
-      const updated = await mutation.setArchived(box.id, !box.isArchived);
-      this.viewModel.upsert(updated);
-      this.showDetail = false;
-    } catch (e) {
-      this.viewModel.errorMessage = `${e}`.substring(0, 160);
-      this.notification?.error(this.viewModel.errorMessage, undefined, 'home.medical.medicine_box_archive');
-    }
-  }
-
-  @Builder
-  formBuilder() {
-    MedicineBoxFormPage({
-      existing: this.formTarget,
-      entryMemberID: this.resolvedMemberID(),
-      mode: MedicineBoxMode.PERSONAL,
-      members: this.homeVm?.membersForUi() ?? [],
-      workflow: this.workflow,
-      attachmentUploader: this.attachmentUploader,
-      onClose: () => this.showForm = false,
-      onSave: (model: MedicineBoxFormModel, id?: number) => this.saveModel(model, id)
-    })
-  }
-
-  @Builder
-  detailBuilder() {
-    if (this.selectedBox) {
-      MedicineBoxDetailPage({
-        box: this.selectedBox,
-        workflow: this.workflow,
-        fileTransferService: this.fileTransfer,
-        onBack: () => this.showDetail = false,
-        onEdit: (box: RemoteMedicineBox) => this.openEdit(box),
-        onDelete: (box: RemoteMedicineBox) => this.deleteBox(box),
-        onArchive: (box: RemoteMedicineBox) => this.unarchiveBox(box)
-      })
-    }
+    homeVm.medicineBoxDetailTarget = MedicineBoxDraftMapping.cloneBox(box);
+    homeVm.medicineBoxDetailCabinetMode = MedicineBoxMode.PERSONAL;
+    homeVm.medicineBoxDetailArchiveMode = MedicalArchiveListMode.ARCHIVED;
+    this.onOpenDetail();
   }
 
   build() {
     Column() {
-      Row() {
-        Text('‹ 返回')
-          .fontSize(16)
-          .fontColor('#0A84FF')
-          .onClick(() => this.onBack?.())
-        Blank()
-        Text('归档药品')
-          .fontSize(18)
-          .fontWeight(FontWeight.Medium)
-        Blank()
-        // 与新增/在用切换对称占位，保持标题居中
-        Text(' ').fontSize(16)
-      }
-      .width('100%')
-      .padding({ left: 16, right: 16, top: 12, bottom: 8 })
+      MedicalListPageHeaderChrome({
+        title: '归档药品',
+        onBack: () => {
+          this.onBack?.();
+        }
+      })
 
       Refresh({ refreshing: $$this.refreshing }) {
         Scroll() {
@@ -245,20 +143,6 @@ export struct MedicineBoxArchivePage {
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#F2F2F7')
-    .bindSheet($$this.showForm, this.formBuilder(), {
-      height: SheetSize.LARGE,
-      dragBar: true,
-      showClose: false,
-      backgroundColor: '#F7F7F8',
-      onDisappear: () => this.showForm = false
-    })
-    .bindContentCover($$this.showDetail, this.detailBuilder(), {
-      modalTransition: ModalTransition.DEFAULT,
-      onDisappear: () => {
-        this.showDetail = false;
-        this.selectedBox = undefined;
-      }
-    })
+    .backgroundColor(MEDICAL_LIST_PAGE_BG)
   }
 }

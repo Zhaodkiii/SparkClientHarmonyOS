@@ -44,20 +44,32 @@ export struct MedicalAttachmentIconView {
   @Prop isExpanded: boolean = false;
   onTap?: () => void;
 
+  private iconResource(): Resource {
+    return $r('sys.symbol.paperclip');
+  }
+
   build() {
     Button({ type: ButtonType.Normal }) {
       Stack({ alignContent: Alignment.TopEnd }) {
-        Column({ space: 4 }) {
-          SymbolGlyph($r('sys.symbol.paperclip'))
-            .fontSize(20)
-            .fontColor([this.count > 0 ? '#0A84FF' : '#8E8E93'])
-          Text('附件')
-            .fontSize(10)
-            .fontColor('#8E8E93')
+        Stack({ alignContent: Alignment.Center }) {
+          if (this.isExpanded && this.count > 0) {
+            Circle()
+              .fill('#1A0A84FF')
+              .width(36)
+              .height(36)
+          }
+          Column({ space: 4 }) {
+            SymbolGlyph(this.iconResource())
+              .fontSize(this.isExpanded && this.count > 0 ? 22 : 20)
+              .fontColor([this.count > 0 ? '#0A84FF' : '#8E8E93'])
+            Text('附件')
+              .fontSize(10)
+              .fontColor('#8E8E93')
+          }
+          .justifyContent(FlexAlign.Center)
         }
         .width(48)
         .height(48)
-        .justifyContent(FlexAlign.Center)
 
         if (this.count > 0) {
           Text(`${this.count}`)
@@ -75,7 +87,11 @@ export struct MedicalAttachmentIconView {
     .backgroundColor(Color.Transparent)
     .enabled(this.count > 0)
     .opacity(this.count > 0 ? 1 : 0.55)
-    .onClick(() => this.onTap?.())
+    .onClick(() => {
+      if (this.count > 0) {
+        this.onTap?.();
+      }
+    })
   }
 }
 

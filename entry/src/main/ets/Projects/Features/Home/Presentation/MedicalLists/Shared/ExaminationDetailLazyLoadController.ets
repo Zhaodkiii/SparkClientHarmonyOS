@@ -30,6 +30,42 @@ export class ExaminationDetailLazyLoadController {
     this.onReportsUpdated = onReportsUpdated;
   }
 
+  /** 对齐 iOS：medExamDetails 已回填则视为已加载，滚动/重进列表不重复请求。 */
+  static hasLoadedDetails(report: RemoteExaminationReportWithAttachments): boolean {
+    return report.detailsLoaded;
+  }
+
+  /**
+   * 将摘要列表与已有明细合并。用于 hydrate / revision 回写时保留已懒加载的子数据，
+   * 避免重进列表或首页缓存已含明细时再次打网。
+   */
+  static mergePreservingLoadedDetails(
+    incoming: RemoteExaminationReportWithAttachments[],
+    existing: RemoteExaminationReportWithAttachments[]
+  ): RemoteExaminationReportWithAttachments[] {
+    const loadedById = new Map<number, RemoteExaminationReportWithAttachments>();
+    for (let i = 0; i < existing.length; i++) {
+      const row = existing[i];
+      if (ExaminationDetailLazyLoadController.hasLoadedDetails(row)) {
+        loadedById.set(row.id, row);
+      }
+    }
+    const merged: RemoteExaminationReportWithAttachments[] = [];
+    for (let i = 0; i < incoming.length; i++) {
+      const row = incoming[i];
+      const previous = loadedById.get(row.id);
+      if (previous) {
+        const copy = row.clone();
+        copy.detailsLoaded = true;
+        copy.medExamDetails = previous.medExamDetails.slice();
+        merged.push(copy);
+      } else {
+        merged.push(row);
+      }
+    }
+    return merged;
+  }
+
   isLoading(reportID: number): boolean {
     return this.loadingIds.indexOf(reportID) >= 0;
   }
@@ -80,7 +116,7 @@ export class ExaminationDetailLazyLoadController {
     if (index < 0) {
       return;
     }
-    if (this.reports[index].detailsLoaded) {
+    if (ExaminationDetailLazyLoadController.hasLoadedDetails(this.reports[index])) {
       return;
     }
     if (this.loadingIds.indexOf(reportID) >= 0) {

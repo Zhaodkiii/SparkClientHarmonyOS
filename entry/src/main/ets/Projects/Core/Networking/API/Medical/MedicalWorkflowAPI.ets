@@ -7,7 +7,8 @@ import {
   RemoteExaminationReportWithAttachments,
   RemoteHealthExamReportWithAttachments,
   RemoteMember,
-  RemoteMemberModuleSetting
+  RemoteMemberModuleSetting,
+  RemoteMedicationRecord
 } from './MedicalSyncAPI';
 import { RemoteMedicineBox } from './MedicalSyncAPI';
 
@@ -537,6 +538,16 @@ export class SparkMedicalWorkflowAPI {
   async updateMedicineBox(id: number, payload: MedicineBoxWritePayload): Promise<RemoteMedicineBox> {
     const raw = await this.updateResource(SparkMedicalResourceKind.MEDICINE_BOXES, id, payload as Object);
     return RemoteMedicineBox.fromJson(raw);
+  }
+
+  async createMedicationRecord(body: Object): Promise<RemoteMedicationRecord> {
+    const raw = await this.createResource(SparkMedicalResourceKind.MEDICATION_RECORDS, body);
+    return RemoteMedicationRecord.fromJson(raw);
+  }
+
+  async updateMedicationRecord(id: number, body: Object): Promise<RemoteMedicationRecord> {
+    const raw = await this.updateResource(SparkMedicalResourceKind.MEDICATION_RECORDS, id, body);
+    return RemoteMedicationRecord.fromJson(raw);
   }
 
   async setMedicineBoxArchived(id: number, archived: boolean): Promise<RemoteMedicineBox> {

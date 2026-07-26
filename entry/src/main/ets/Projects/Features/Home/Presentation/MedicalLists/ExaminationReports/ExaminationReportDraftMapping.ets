@@ -31,10 +31,35 @@ export class ExaminationReportDraftMapping {
   }
 
   static todayDateText(): string {
-    const now = new Date();
-    const month = `${now.getMonth() + 1}`.padStart(2, '0');
-    const day = `${now.getDate()}`.padStart(2, '0');
-    return `${now.getFullYear()}-${month}-${day}`;
+    return ExaminationReportDraftMapping.formatDate(new Date());
+  }
+
+  /** 将 `Date` 格式化为 `yyyy-MM-dd`。对齐 iOS `formatExamDayString`。 */
+  static formatDate(day: Date): string {
+    const month = `${day.getMonth() + 1}`.padStart(2, '0');
+    const dayOfMonth = `${day.getDate()}`.padStart(2, '0');
+    return `${day.getFullYear()}-${month}-${dayOfMonth}`;
+  }
+
+  /** 将日期字符串解析为本地 `Date`。对齐 iOS `parseExamDay`。 */
+  static parseDate(raw?: string): Date {
+    const trimmed = (raw ?? '').trim();
+    if (trimmed.length >= 10 && trimmed.charAt(4) === '-' && trimmed.charAt(7) === '-') {
+      const year = parseInt(trimmed.substring(0, 4), 10);
+      const month = parseInt(trimmed.substring(5, 7), 10);
+      const day = parseInt(trimmed.substring(8, 10), 10);
+      if (!Number.isNaN(year) && !Number.isNaN(month) && !Number.isNaN(day)
+        && month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+        return new Date(year, month - 1, day);
+      }
+    }
+    if (trimmed.length > 0) {
+      const iso = new Date(trimmed);
+      if (!Number.isNaN(iso.getTime())) {
+        return iso;
+      }
+    }
+    return new Date();
   }
 
   static itemDraftFromDetail(detail: RemoteMedExamDetail): ItemDraft {

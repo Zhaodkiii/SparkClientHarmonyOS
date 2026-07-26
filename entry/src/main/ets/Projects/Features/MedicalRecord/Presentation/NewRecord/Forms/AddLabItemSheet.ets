@@ -2,12 +2,18 @@ import { ItemDraft } from '../../../../MedicalDocumentUpload/Domain/MedicalDocum
 import { ExaminationReportDraftMapping } from
   '../../../../Home/Presentation/MedicalLists/ExaminationReports/ExaminationReportDraftMapping';
 import {
+  EXAM_FORM_PAGE_BACKGROUND,
   ExamFormBottomBar,
-  ExamFormTextAreaField,
+  ExamFormDivider,
+  ExamFormInlineHeadline,
+  ExamFormMenuCustomRow,
+  ExamFormMenuSection,
+  ExamFormSheetHeader,
   ExamFormTextField,
   SPARK_LAB_COMMON_UNITS,
   SPARK_LAB_FLAG_OPTIONS,
-  SPARK_LAB_MORE_UNITS
+  SPARK_LAB_MORE_UNITS,
+  SparkLabExamCategoryCascadeRow
 } from './ExamFormFieldSupport';
 
 /**
@@ -27,15 +33,18 @@ export struct AddLabItemSheet {
   @State private category: string = '';
   @State private subCategory: string = '';
   @State private itemId: string = '';
+  @State private sheetKeyboardVisible: boolean = false;
 
   aboutToAppear(): void {
     const draft = ExaminationReportDraftMapping.cloneItemDraft(this.initialDraft);
     this.itemId = draft.id.length > 0 ? draft.id : ExaminationReportDraftMapping.newItemId();
     this.itemName = draft.itemName ?? '';
     this.resultValue = draft.resultValue ?? '';
-    this.unit = (draft.unit ?? '').length > 0 ? (draft.unit ?? 'g/L') : 'g/L';
+    const unitText = (draft.unit ?? '').trim();
+    this.unit = unitText.length > 0 ? unitText : (SPARK_LAB_COMMON_UNITS[0] ?? 'g/L');
     this.referenceRange = draft.referenceRange ?? '';
-    this.flag = (draft.flag ?? '').length > 0 ? (draft.flag ?? '正常') : '正常';
+    const flagText = (draft.flag ?? '').trim();
+    this.flag = flagText.length > 0 ? flagText : '正常';
     this.category = draft.category ?? '';
     this.subCategory = draft.subCategory ?? '';
   }
@@ -62,130 +71,142 @@ export struct AddLabItemSheet {
     }
   }
 
-  @Builder
-  private unitChip(unitValue: string) {
-    Text(unitValue)
-      .fontSize(12)
-      .fontColor(this.unit === unitValue ? '#FFFFFF' : '#0A84FF')
-      .padding({ left: 10, right: 10, top: 6, bottom: 6 })
-      .backgroundColor(this.unit === unitValue ? '#0A84FF' : '#EAF3FF')
-      .borderRadius(14)
-      .onClick(() => {
-        this.unit = unitValue;
-      })
+  private unitSections(): ExamFormMenuSection[] {
+    return [
+      new ExamFormMenuSection('常用单位', SPARK_LAB_COMMON_UNITS),
+      new ExamFormMenuSection('更多单位', SPARK_LAB_MORE_UNITS)
+    ];
+  }
+
+  private flagSections(): ExamFormMenuSection[] {
+    return [
+      new ExamFormMenuSection('', SPARK_LAB_FLAG_OPTIONS)
+    ];
+  }
+
+  private keyboardFocusChanged(visible: boolean): void {
+    this.sheetKeyboardVisible = visible;
+  }
+
+  private dismissKeyboard(): void {
+    this.sheetKeyboardVisible = false;
   }
 
   @Builder
-  private flagChip(flagValue: string) {
-    Text(flagValue)
-      .fontSize(12)
-      .fontColor(this.flag === flagValue ? '#FFFFFF' : '#5856D6')
-      .padding({ left: 10, right: 10, top: 6, bottom: 6 })
-      .backgroundColor(this.flag === flagValue ? '#5856D6' : '#F2F0FF')
-      .borderRadius(14)
-      .onClick(() => {
-        this.flag = flagValue;
+  private formBody() {
+    Column({ space: 16 }) {
+      ExamFormInlineHeadline({ title: '新增检验项' })
+
+      Row({ space: 12 }) {
+        Column() {
+          ExamFormTextField({
+            label: '项目',
+            placeholder: '如：血红蛋白',
+            required: true,
+            value: $itemName,
+            onKeyboardFocus: (visible: boolean): void => {
+              this.keyboardFocusChanged(visible);
+            }
+          })
+        }
+        .layoutWeight(1)
+
+        Column() {
+          ExamFormTextField({
+            label: '结果',
+            placeholder: '如：142',
+            required: true,
+            value: $resultValue,
+            onKeyboardFocus: (visible: boolean): void => {
+              this.keyboardFocusChanged(visible);
+            }
+          })
+        }
+        .layoutWeight(1)
+      }
+      .width('100%')
+      .alignItems(VerticalAlign.Top)
+
+      ExamFormMenuCustomRow({
+        label: '单位',
+        required: true,
+        sections: this.unitSections(),
+        customMenuTitle: '自定义单位',
+        customPlaceholder: '输入自定义单位',
+        customAutofocus: true,
+        value: $unit,
+        onKeyboardFocus: (visible: boolean): void => {
+          this.keyboardFocusChanged(visible);
+        }
       })
+
+      ExamFormTextField({
+        label: '参考范围',
+        placeholder: '如：115-150',
+        value: $referenceRange,
+        onKeyboardFocus: (visible: boolean): void => {
+          this.keyboardFocusChanged(visible);
+        }
+      })
+
+      ExamFormMenuCustomRow({
+        label: '状态',
+        required: true,
+        sections: this.flagSections(),
+        customMenuTitle: '自定义状态',
+        customPlaceholder: '输入自定义状态',
+        showLeadingIcon: true,
+        customAutofocus: true,
+        value: $flag,
+        onKeyboardFocus: (visible: boolean): void => {
+          this.keyboardFocusChanged(visible);
+        }
+      })
+
+      ExamFormDivider({ verticalPadding: 8 })
+
+      Text('分类（可选覆盖表单顶部一级/二级）')
+        .fontSize(12)
+        .fontColor('#8E8E93')
+        .width('100%')
+        .lineHeight(16)
+
+      SparkLabExamCategoryCascadeRow({
+        primaryTitle: '分类',
+        secondaryTitle: '子分类',
+        primaryPlaceholder: '如：血常规',
+        secondaryPlaceholder: '如：肝功能（可选）',
+        primaryRequired: false,
+        primary: $category,
+        secondary: $subCategory,
+        onKeyboardFocus: (visible: boolean): void => {
+          this.keyboardFocusChanged(visible);
+        }
+      })
+    }
+    .width('100%')
+    .alignItems(HorizontalAlign.Start)
   }
 
   build() {
     Column() {
+      ExamFormSheetHeader({ title: '新增检验项' })
+
       Scroll() {
-        Column({ space: 14 }) {
-          Text('检验项目')
-            .fontSize(18)
-            .fontWeight(FontWeight.Medium)
-            .width('100%')
-
-          Row({ space: 12 }) {
-            Column() {
-              ExamFormTextField({
-                label: '项目名称',
-                placeholder: '如 血红蛋白',
-                required: true,
-                value: $itemName
-              })
-            }
-            .layoutWeight(1)
-
-            Column() {
-              ExamFormTextField({
-                label: '结果',
-                placeholder: '数值或文本',
-                required: true,
-                value: $resultValue
-              })
-            }
-            .layoutWeight(1)
-          }
-          .width('100%')
-          .alignItems(VerticalAlign.Top)
-
-          Column({ space: 8 }) {
-            Text('单位 *')
-              .fontSize(13)
-              .fontColor('#666666')
-              .width('100%')
-            Flex({ wrap: FlexWrap.Wrap, justifyContent: FlexAlign.Start }) {
-              ForEach(SPARK_LAB_COMMON_UNITS, (unitValue: string) => {
-                this.unitChip(unitValue)
-              }, (unitValue: string): string => `lab-unit-common-${unitValue}`)
-              ForEach(SPARK_LAB_MORE_UNITS, (unitValue: string) => {
-                this.unitChip(unitValue)
-              }, (unitValue: string): string => `lab-unit-more-${unitValue}`)
-            }
-            .width('100%')
-            TextInput({ text: this.unit, placeholder: '自定义单位' })
-              .width('100%')
-              .height(40)
-              .fontSize(15)
-              .backgroundColor('#F2F2F7')
-              .borderRadius(8)
-              .onChange((text: string) => {
-                this.unit = text;
-              })
-          }
-          .width('100%')
-
-          ExamFormTextField({
-            label: '参考范围',
-            placeholder: '如 3.5-9.5',
-            value: $referenceRange
-          })
-
-          Column({ space: 8 }) {
-            Text('结果状态 *')
-              .fontSize(13)
-              .fontColor('#666666')
-              .width('100%')
-            Flex({ wrap: FlexWrap.Wrap, justifyContent: FlexAlign.Start }) {
-              ForEach(SPARK_LAB_FLAG_OPTIONS, (flagValue: string) => {
-                this.flagChip(flagValue)
-              }, (flagValue: string): string => `lab-flag-${flagValue}`)
-            }
-            .width('100%')
-          }
-          .width('100%')
-
-          ExamFormTextField({
-            label: '分类（可选）',
-            placeholder: '一级分类',
-            value: $category
-          })
-          ExamFormTextField({
-            label: '子分类（可选）',
-            placeholder: '二级分类',
-            value: $subCategory
-          })
-        }
-        .width('100%')
-        .padding(16)
+        this.formBody()
       }
       .layoutWeight(1)
+      .scrollBar(BarState.Off)
+      .edgeEffect(EdgeEffect.Spring)
+      .padding({ left: 16, right: 16, top: 4, bottom: 24 })
 
       ExamFormBottomBar({
         canSubmit: this.canSubmit(),
         saveTitle: '完成',
+        keyboardVisible: this.sheetKeyboardVisible,
+        onKeyboardDone: (): void => {
+          this.dismissKeyboard();
+        },
         onCancel: () => {
           if (this.onCancel) {
             this.onCancel();
@@ -198,6 +219,6 @@ export struct AddLabItemSheet {
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#F2F2F7')
+    .backgroundColor(EXAM_FORM_PAGE_BACKGROUND)
   }
 }

@@ -77,6 +77,9 @@ import { ExaminationReportCategory } from '../../Home/Presentation/MedicalLists/
 import {
   MedicalReportCardDetailTarget
 } from './ResultPages/MedicalReportRecognitionResult/MedicalReportResultSupport';
+import {
+  MedicineBoxCardDetailTarget
+} from './ResultPages/MedicineBoxRecognitionResult/MedicineBoxRecognitionResultRoutes';
 import { OCRWarmupCoordinator } from '../../../Core/OCR/OCRWarmupCoordinator';
 import { HarmonyBuiltInOCRSession } from '../../../Core/OCR/HarmonyBuiltInOCRSession';
 import { OCRDiagnostics } from '../../../Core/OCR/OCRDiagnostics';
@@ -153,12 +156,12 @@ export class MedicalDocumentUploadViewModel {
   isSaving: boolean = false;
   /** 保存成功序号；首页/列表可监听以刷新。 */
   saveSucceededRevision: number = 0;
-  /** 结果页草稿编辑序号；驱动附件关联等嵌套草稿变更后的 UI 刷新。 */
-  typedDraftRevision: number = 0;
   /** 保存前预提交校验问题（驱动结果页高亮）。 */
   preSubmitValidationIssues: MedicalPreSubmitValidationIssue[] = [];
   /** 识别结果页报告卡片 → 本地草稿详情导航目标。 */
   medicalReportCardDetailTarget?: MedicalReportCardDetailTarget;
+  /** 药箱识别结果页卡片 → 本地草稿详情导航目标。 */
+  medicineBoxCardDetailTarget?: MedicineBoxCardDetailTarget;
   /**
    * 上传宿主页统一 Navigation 栈。对齐 iOS 单一 NavigationStack：
    * picking/processing/result 为栈根，报告卡片详情作为 push 目标，与宿主 “×/AI 上传报告” 头部共用同一栈，
@@ -327,6 +330,21 @@ export class MedicalDocumentUploadViewModel {
     this.notifyChanged();
   }
 
+  /** 对齐 iOS `prepareAndStart(files:kind:)`：注入本地文件和类型后立即进入识别流程。 */
+  prepareAndStart(files: MedicalAttachmentInput[], kind: MedicalDocumentKind): void {
+    this.reset(false);
+    this.uploadSessionId = MedicalDocumentUploadViewModel.newSessionId();
+    this.entrySource = MedicalDocumentUploadEntrySource.HOME;
+    this.selectedFiles = files.slice();
+    this.selectedKind = kind;
+    this.syncMemberContext();
+    this.clearPresentedError(false);
+    void this.persistCheckpoint('picking');
+    this.notifyChanged();
+    this.prewarmOCR('list_sheet_confirm');
+    this.startRecognitionTask();
+  }
+
   appendFiles(files: MedicalAttachmentInput[]): void {
     this.setSelectedFiles(this.selectedFiles.concat(files));
   }
@@ -396,6 +414,18 @@ export class MedicalDocumentUploadViewModel {
 
   clearMedicalReportCardDetail(): void {
     this.medicalReportCardDetailTarget = undefined;
+    this.notifyChanged();
+  }
+
+  openMedicineBoxCardDetail(index: number): void {
+    const target = new MedicineBoxCardDetailTarget();
+    target.index = index;
+    this.medicineBoxCardDetailTarget = target;
+    this.notifyChanged();
+  }
+
+  clearMedicineBoxCardDetail(): void {
+    this.medicineBoxCardDetailTarget = undefined;
     this.notifyChanged();
   }
 
@@ -941,7 +971,15 @@ export class MedicalDocumentUploadViewModel {
 
   /** 结果页是否允许触发「校验并保存」。 */
   get canAttemptSave(): boolean {
-    return this.hasReusableTypedOutput();
+    if (!this.hasReusableTypedOutput()) {
+      return false;
+    }
+    const kind = this.resultDocumentKind();
+    if (kind === MedicalDocumentKind.MEDICINE_BOX) {
+      const drafts = this.typedOutput?.typedDrafts.medicineBoxDrafts ?? [];
+      return drafts.length > 0;
+    }
+    return true;
   }
 
   /** 结果页展示用：预提交问题摘要行。 */
@@ -1006,10 +1044,8 @@ export class MedicalDocumentUploadViewModel {
     }
     if (clearedFieldKeys.length > 0) {
       this.clearPreSubmitValidationIssuesMatchingFieldKeys(clearedFieldKeys);
-      this.typedDraftRevision += 1;
       return;
     }
-    this.typedDraftRevision += 1;
     this.notifyChanged();
   }
 

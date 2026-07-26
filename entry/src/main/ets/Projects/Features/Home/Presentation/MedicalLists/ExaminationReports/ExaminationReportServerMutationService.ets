@@ -1,5 +1,9 @@
 import { SparkMedicalQueryAPI } from '../../../../../Core/Networking/API/Medical/MedicalQueryAPI';
-import { SparkMedicalWorkflowAPI } from '../../../../../Core/Networking/API/Medical/MedicalWorkflowAPI';
+import {
+  MedicalReportDetailPayload,
+  MedicalReportSavePayload,
+  SparkMedicalWorkflowAPI
+} from '../../../../../Core/Networking/API/Medical/MedicalWorkflowAPI';
 import {
   RemoteExaminationReportWithAttachments,
   RemoteMedExamDetail
@@ -70,6 +74,69 @@ export class ExaminationReportServerMutationService {
 
   async deleteReport(reportID: number): Promise<void> {
     await this.workflowAPI.deleteResource(SparkMedicalResourceKind.EXAMINATION_REPORTS, reportID);
+  }
+
+  /** 手工新建检查报告。对齐 iOS `MedicalRecordFormSubmissionService.submitMedicalReportCreate`。 */
+  async createReportWithDraft(
+    memberID: number,
+    draft: MedicalReportRecognitionDraft,
+    medicalCaseID?: number
+  ): Promise<number> {
+    const findings = MedicalReportResultSupport.resolvedFindingsText(draft);
+    const impression = MedicalReportResultSupport.resolvedImpressionText(draft);
+    const fallbackCategory = nonEmptyText(draft.category).length > 0 ?
+      nonEmptyText(draft.category) : 'laboratory';
+    const payload = new MedicalReportSavePayload();
+    payload.member = memberID;
+    if (medicalCaseID !== undefined) {
+      payload.medical_case = medicalCaseID;
+    }
+    payload.category = fallbackCategory;
+    payload.sub_category = '';
+    payload.item_name = draft.title;
+    const dateText = nonEmptyText(draft.date);
+    if (dateText.length > 0) {
+      payload.performed_at = dateText;
+      payload.reported_at = dateText;
+    }
+    payload.organization_name = draft.hospital;
+    payload.doctor_name = draft.doctor ?? '';
+    payload.findings = findings;
+    payload.impression = impression;
+    payload.file_ids = [];
+    payload.details = [];
+    for (let index = 0; index < draft.details.length; index++) {
+      const item = draft.details[index];
+      const apiItem = MedicalDocumentDraftMappers.itemDraftToMedicalReportItem(
+        item,
+        fallbackCategory,
+        `${index}`
+      );
+      const detailReq = MedicalDocumentDraftMappers.medicalReportItemToDetailRequest(apiItem);
+      const row = new MedicalReportDetailPayload();
+      row.category = detailReq.category;
+      row.sub_category = detailReq.subCategory ?? '';
+      row.item_name = detailReq.itemName ?? '';
+      row.item_code = detailReq.itemCode ?? '';
+      row.result_value = detailReq.resultValue ?? '';
+      row.unit = detailReq.unit ?? '';
+      row.reference_range = detailReq.referenceRange ?? '';
+      row.flag = detailReq.flag ?? '';
+      row.result_at = detailReq.resultAt;
+      row.modality = detailReq.modality ?? '';
+      row.body_part = detailReq.bodyPart ?? '';
+      row.diagnosis = detailReq.diagnosis ?? '';
+      row.sort_order = detailReq.sortOrder ?? index;
+      if (detailReq.extra.size > 0) {
+        const extra: Record<string, string> = {};
+        detailReq.extra.forEach((value: string, key: string) => {
+          extra[key] = value;
+        });
+        row.extra = extra;
+      }
+      payload.details.push(row);
+    }
+    return await this.workflowAPI.createMedicalReport(payload);
   }
 
   async updateReportWithDraft(

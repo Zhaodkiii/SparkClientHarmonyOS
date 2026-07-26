@@ -18,9 +18,11 @@ import {
 } from '../Shared/HealthExamFlagSupport';
 
 /**
- * 检查报告三类卡片。对齐 iOS LabReportCard（实验室/影像/病理分型）。
- * 头部：圆形分类图标 + 标题/副标题 + 日期/机构 meta 行；右侧「查看详情」+ 附件展开。
- * 详情门禁：medExamDetails.length > 0。
+ * 检查报告三类卡片。对齐 iOS `LabReportCard.swift`（实验室/影像/病理分型）。
+ * 结构：头部（分类图标 + 标题/副标题 + 日期/机构）+ 分割线 → 加载态 → 分类内容区。
+ * 卡片整体使用轻材质卡片视觉（白底 + 细边框 + 阴影），对齐 iOS `.ultraThinMaterial` 卡片观感。
+ * 详情入口始终可点（鸿蒙策略，见 HOS-MED-EXAM-0005）：明细懒加载由列表与详情页承接，不在卡片层阻断跳转；
+ * 与 iOS「无明细即置灰禁用」的差异以视觉弱化（灰色文案）呈现，但不阻断点击。
  */
 @Component
 export struct LabReportCard {
@@ -61,15 +63,19 @@ export struct LabReportCard {
     return this.report.attachments;
   }
 
-  private abnormalCount(): number {
+  private abnormalItems(): RemoteMedExamDetail[] {
     const items = this.detailItems();
-    let count = 0;
+    const rows: RemoteMedExamDetail[] = [];
     for (let i = 0; i < items.length; i++) {
       if (isPotentiallyAbnormalFlag(items[i].flag)) {
-        count += 1;
+        rows.push(items[i]);
       }
     }
-    return count;
+    return rows;
+  }
+
+  private abnormalCount(): number {
+    return this.abnormalItems().length;
   }
 
   private normalCount(): number {
@@ -78,19 +84,38 @@ export struct LabReportCard {
     return total > abnormal ? total - abnormal : 0;
   }
 
-  private canOpenDetail(): boolean {
+  /** 是否可进入详情。对齐 iOS `canNavigateToDetail`，仅用于视觉弱化，不阻断鸿蒙实际跳转。 */
+  private canNavigateToDetail(): boolean {
     return this.detailItems().length > 0;
   }
 
-  private abnormalPreviewRows(): RemoteMedExamDetail[] {
-    const items = this.detailItems();
-    const rows: RemoteMedExamDetail[] = [];
-    for (let i = 0; i < items.length && rows.length < 5; i++) {
-      if (isPotentiallyAbnormalFlag(items[i].flag)) {
-        rows.push(items[i]);
-      }
+  private triggerOpenDetail(): void {
+    if (this.onOpenDetail) {
+      this.onOpenDetail();
     }
-    return rows;
+  }
+
+  /** 将 #RRGGBB 与 0–1 透明度合成鸿蒙 #AARRGGBB。 */
+  private withAlpha(hex: string, alpha: number): string {
+    const a = Math.round(alpha * 255).toString(16).padStart(2, '0').toUpperCase();
+    return `#${a}${hex.replace('#', '').toUpperCase()}`;
+  }
+
+  private toggleAttachments(): void {
+    animateTo({ duration: 260, curve: Curve.Friction }, () => {
+      this.isAttachmentsExpanded = !this.isAttachmentsExpanded;
+    });
+  }
+
+  private toggleAbnormalExpanded(): void {
+    animateTo({ duration: 260, curve: Curve.Friction }, () => {
+      this.isAbnormalExpanded = !this.isAbnormalExpanded;
+    });
+  }
+
+  private abnormalPreviewRows(): RemoteMedExamDetail[] {
+    const items = this.abnormalItems();
+    return items.length > 5 ? items.slice(0, 5) : items;
   }
 
   private pathologyPreviewRows(): RemoteMedExamDetail[] {
@@ -111,6 +136,7 @@ export struct LabReportCard {
     return value.length > 0 ? value : unit;
   }
 
+  /** 对齐 iOS `detailText`：印象优先，其次所见，用作无异常明细时的重点信息兜底文案。 */
   private narrativeFallback(): string {
     const impression = nonEmptyText(this.report.impression);
     if (impression.length > 0) {
@@ -119,42 +145,37 @@ export struct LabReportCard {
     return nonEmptyText(this.report.findings);
   }
 
+  private hasNarrativeFallback(): boolean {
+    return this.narrativeFallback().length > 0;
+  }
+
   build() {
     Column() {
+      // 头部：标题簇 + 日期机构 + 查看详情 + 附件入口。对齐 iOS headerSection，底部叠加分割线。
       Column({ space: 12 }) {
         Row({ space: 8 }) {
-          this.titleCluster()
+          // 头部主信息区：标题、日期、机构点击进入详情（对齐 iOS NavigationLink 头部区域）。
+          Column({ space: 12 }) {
+            this.titleCluster()
+            this.dateMetaRow()
+          }
+          .alignItems(HorizontalAlign.Start)
+          .layoutWeight(1)
+          .onClick(() => {
+            this.triggerOpenDetail();
+          })
 
-          Blank()
+          // 右侧动作区：详情按钮与附件入口各自独立，不得冒泡到头部主信息点击。
+          Column({ space: 10 }) {
+            this.detailAction()
 
-          Column({ space: 8 }) {
-            if (this.isLoadingDetails) {
-              Row({ space: 6 }) {
-                LoadingProgress().width(14).height(14)
-                Text('查看详情')
-                  .fontSize(13)
-                  .fontColor('#0A84FF')
+            MedicalAttachmentIconView({
+              count: this.attachments().length,
+              isExpanded: this.isAttachmentsExpanded,
+              onTap: () => {
+                this.toggleAttachments();
               }
-            } else {
-              Text('查看详情')
-                .fontSize(13)
-                .fontColor(this.canOpenDetail() ? '#0A84FF' : '#AEAEB2')
-                .onClick(() => {
-                  if (this.canOpenDetail() && this.onOpenDetail) {
-                    this.onOpenDetail();
-                  }
-                })
-            }
-
-            if (this.attachments().length > 0) {
-              MedicalAttachmentIconView({
-                count: this.attachments().length,
-                isExpanded: this.isAttachmentsExpanded,
-                onTap: () => {
-                  this.isAttachmentsExpanded = !this.isAttachmentsExpanded;
-                }
-              })
-            }
+            })
           }
           .alignItems(HorizontalAlign.End)
         }
@@ -166,8 +187,20 @@ export struct LabReportCard {
             attachments: this.attachments(),
             fileTransferService: this.fileTransferService
           })
+          .transition(TransitionEffect.OPACITY.combine(TransitionEffect.move(TransitionEdge.TOP)))
         }
+      }
+      .padding(16)
+      .width('100%')
+      .backgroundColor(this.withAlpha('#FFFFFF', 0.05))
+      .border({ width: { bottom: 1 }, color: this.withAlpha('#3C3C43', 0.35) })
 
+      if (this.isLoadingDetails) {
+        this.loadingSection()
+      }
+
+      // 卡片主体内容区点击进入详情；内部可交互块（重点信息展开）自带 onClick，优先消费事件。
+      Column() {
         if (this.category() === 'laboratory') {
           this.laboratorySection()
         } else if (this.category() === 'imaging') {
@@ -178,52 +211,39 @@ export struct LabReportCard {
       }
       .padding(16)
       .width('100%')
-
-      if (this.isLoadingDetails) {
-        Row({ space: 10 }) {
-          LoadingProgress().width(16).height(16)
-          Text('正在加载明细…')
-            .fontSize(12)
-            .fontColor('#8E8E93')
-          Blank()
-        }
-        .width('100%')
-        .padding({ left: 16, right: 16, top: 10, bottom: 10 })
-        .backgroundColor('#F2F2F7')
-      }
+      .onClick(() => {
+        this.triggerOpenDetail();
+      })
     }
     .width('100%')
     .backgroundColor('#FFFFFF')
     .borderRadius(12)
-    .border({ width: 1, color: '#E5E5EA' })
-    .onClick(() => {
-      if (this.canOpenDetail() && this.onOpenDetail) {
-        this.onOpenDetail();
-      }
-    })
+    .border({ width: 1, color: this.withAlpha('#FFFFFF', 0.2) })
+    .shadow({ radius: 10, color: this.withAlpha('#000000', 0.06), offsetX: 0, offsetY: 4 })
+    .clip(true)
   }
 
   @Builder
   titleCluster() {
-    Row({ space: 10 }) {
+    Row({ space: 8 }) {
       Stack({ alignContent: Alignment.Center }) {
         Circle()
-          .fill(`${examinationCategoryTint(this.category())}1A`)
-          .width(36)
-          .height(36)
+          .fill(this.withAlpha(examinationCategoryTint(this.category()), 0.1))
+          .width(40)
+          .height(40)
         SymbolGlyph(examinationCategoryIcon(this.category()))
-          .fontSize(16)
+          .fontSize(18)
           .fontColor([examinationCategoryTint(this.category())])
       }
-      .width(36)
-      .height(36)
+      .width(40)
+      .height(40)
 
       Column({ space: 4 }) {
         Text(this.titleText())
-          .fontSize(16)
-          .fontWeight(FontWeight.Medium)
+          .fontSize(17)
+          .fontWeight(FontWeight.Bold)
           .fontColor('#1C1C1E')
-          .maxLines(1)
+          .maxLines(2)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
 
         if (this.subtitleText().length > 0) {
@@ -231,198 +251,351 @@ export struct LabReportCard {
             .fontSize(12)
             .fontColor('#8E8E93')
         }
-
-        Row({ space: 10 }) {
-          if (formatExaminationDateText(this.report).length > 0) {
-            Text(formatExaminationDateText(this.report))
-              .fontSize(12)
-              .fontColor('#8E8E93')
-          }
-          if (nonEmptyText(this.report.organizationName).length > 0) {
-            Text(nonEmptyText(this.report.organizationName))
-              .fontSize(12)
-              .fontColor('#8E8E93')
-              .maxLines(1)
-              .textOverflow({ overflow: TextOverflow.Ellipsis })
-          }
-        }
       }
       .alignItems(HorizontalAlign.Start)
+      .layoutWeight(1)
     }
     .alignItems(VerticalAlign.Top)
-    .layoutWeight(1)
+    .width('100%')
   }
 
+  /** 对齐 iOS `dateMetaRow`：calendar/building 图标 + 日期、机构名的元信息行。 */
   @Builder
-  laboratorySection() {
-    Column({ space: 10 }) {
-      if (this.report.detailsLoaded) {
-        Row({ space: 8 }) {
-          this.statCell(`${this.detailItems().length}`, '项目', '#0A84FF', '#0A84FF14')
-          this.statCell(`${this.normalCount()}`, '正常', '#34C759', '#34C75914')
-          this.statCell(`${this.abnormalCount()}`, '异常', '#FF3B30', '#FF3B3014')
+  dateMetaRow() {
+    Row({ space: 12 }) {
+      if (formatExaminationDateText(this.report).length > 0) {
+        Row({ space: 4 }) {
+          SymbolGlyph($r('sys.symbol.calendar'))
+            .fontSize(12)
+            .fontColor(['#8E8E93'])
+          Text(formatExaminationDateText(this.report))
+            .fontSize(12)
+            .fontColor('#8E8E93')
         }
-        .width('100%')
       }
-
-      if (this.abnormalPreviewRows().length > 0) {
-        this.abnormalDisclosure()
-      } else if (this.narrativeFallback().length > 0 && this.report.detailsLoaded) {
-        Text(this.narrativeFallback())
-          .fontSize(13)
-          .fontColor('#3A3A3C')
-          .maxLines(3)
-          .textOverflow({ overflow: TextOverflow.Ellipsis })
-          .width('100%')
+      if (nonEmptyText(this.report.organizationName).length > 0) {
+        Row({ space: 4 }) {
+          SymbolGlyph($r('sys.symbol.building'))
+            .fontSize(12)
+            .fontColor(['#8E8E93'])
+          Text(nonEmptyText(this.report.organizationName))
+            .fontSize(12)
+            .fontColor('#8E8E93')
+            .maxLines(1)
+            .textOverflow({ overflow: TextOverflow.Ellipsis })
+        }
+        .layoutWeight(1)
       }
     }
     .width('100%')
   }
 
+  /** 对齐 iOS `detailAction`：加载中 / 可进入 / 弱化三态，鸿蒙始终允许点击。 */
+  @Builder
+  detailAction() {
+    if (this.isLoadingDetails) {
+      Row({ space: 6 }) {
+        LoadingProgress().width(14).height(14).color('#0A84FF')
+        Text('查看详情')
+          .fontSize(13)
+          .fontWeight(FontWeight.Medium)
+          .fontColor('#0A84FF')
+      }
+      .onClick(() => {
+        this.triggerOpenDetail();
+      })
+    } else if (this.canNavigateToDetail()) {
+      Row({ space: 4 }) {
+        Text('查看详情')
+          .fontSize(13)
+          .fontWeight(FontWeight.Medium)
+          .fontColor('#0A84FF')
+        SymbolGlyph($r('sys.symbol.chevron_forward'))
+          .fontSize(11)
+          .fontColor(['#0A84FF'])
+      }
+      .onClick(() => {
+        this.triggerOpenDetail();
+      })
+    } else {
+      Row({ space: 4 }) {
+        Text('查看详情')
+          .fontSize(13)
+          .fontWeight(FontWeight.Medium)
+          .fontColor('#8E8E93')
+        SymbolGlyph($r('sys.symbol.chevron_forward'))
+          .fontSize(11)
+          .fontColor(['#8E8E93'])
+      }
+      .opacity(0.5)
+      .onClick(() => {
+        // 鸿蒙策略：无明细时仍允许进入详情，由详情页补拉（对齐 HOS-MED-EXAM-0005）。
+        this.triggerOpenDetail();
+      })
+    }
+  }
+
+  @Builder
+  loadingSection() {
+    Row({ space: 10 }) {
+      LoadingProgress().width(16).height(16)
+      Text('正在加载明细…')
+        .fontSize(12)
+        .fontColor('#8E8E93')
+      Blank()
+    }
+    .width('100%')
+    .padding({ left: 16, right: 16, top: 12, bottom: 12 })
+    .backgroundColor(this.withAlpha('#F2F2F7', 0.65))
+    .onClick(() => {
+      this.triggerOpenDetail();
+    })
+  }
+
+  @Builder
+  laboratorySection() {
+    Column({ space: 0 }) {
+      Row({ space: 8 }) {
+        this.statCell(`${this.detailItems().length}`, '检查项', '#007AFF', this.withAlpha('#007AFF', 0.08))
+        this.statCell(`${this.normalCount()}`, '正常', '#34C759', this.withAlpha('#34C759', 0.08))
+        this.statCell(`${this.abnormalCount()}`, '重点', '#FF3B30', this.withAlpha('#FF3B30', 0.08))
+      }
+      .width('100%')
+      .padding({ bottom: 12 })
+
+      if (this.abnormalItems().length > 0) {
+        this.abnormalDisclosure()
+      } else if (this.hasNarrativeFallback()) {
+        this.narrativeDisclosure()
+      }
+    }
+    .width('100%')
+  }
+
+  /** 对齐 iOS `abnormalSection`：橙色可展开重点信息条，展示前 5 条异常明细。 */
   @Builder
   abnormalDisclosure() {
     Column({ space: 0 }) {
       Row({ space: 8 }) {
-        Text('!')
-          .fontSize(13)
-          .fontWeight(FontWeight.Bold)
-          .fontColor(Color.White)
-          .width(16)
-          .height(16)
-          .textAlign(TextAlign.Center)
-          .backgroundColor('#FF9500')
-          .borderRadius(8)
-        Text('异常要点')
-          .fontSize(13)
+        SymbolGlyph($r('sys.symbol.exclamationmark_circle_fill'))
+          .fontSize(15)
+          .fontColor(['#FF9500'])
+        Text('重点信息')
+          .fontSize(14)
           .fontColor('#FF9500')
         Blank()
-        Text(`${this.abnormalPreviewRows().length}`)
+        Text(`${this.abnormalCount()}`)
           .fontSize(11)
+          .fontWeight(FontWeight.Medium)
           .fontColor(Color.White)
-          .padding({ left: 6, right: 6, top: 1, bottom: 1 })
+          .padding({ left: 8, right: 8, top: 2, bottom: 2 })
           .backgroundColor('#FF9500')
           .borderRadius(6)
-        SymbolGlyph($r('sys.symbol.chevron_forward'))
+        SymbolGlyph($r('sys.symbol.chevron_down'))
           .fontSize(11)
-          .fontColor(['#FF9500'])
-          .rotate({ angle: this.isAbnormalExpanded ? 90 : 0 })
+          .fontColor([this.withAlpha('#FF9500', 0.85)])
+          .rotate({ angle: this.isAbnormalExpanded ? 0 : -90 })
       }
       .width('100%')
-      .padding({ top: 10, bottom: 10 })
+      .padding({ left: 16, right: 16, top: 12, bottom: 12 })
+      .backgroundColor(this.withAlpha('#FF9500', 0.05))
+      .border({ width: { bottom: 1 }, color: this.withAlpha('#FF9500', 0.1) })
       .onClick(() => {
-        this.isAbnormalExpanded = !this.isAbnormalExpanded;
+        this.toggleAbnormalExpanded();
       })
 
       if (this.isAbnormalExpanded) {
         Column({ space: 6 }) {
           ForEach(this.abnormalPreviewRows(), (item: RemoteMedExamDetail) => {
             Text(`${nonEmptyText(item.itemName)}：${this.resultText(item)}`)
-              .fontSize(13)
+              .fontSize(14)
               .fontColor('#3A3A3C')
               .width('100%')
           }, (item: RemoteMedExamDetail) => `abn-${item.id}`)
         }
         .width('100%')
-        .padding({ bottom: 10 })
+        .alignItems(HorizontalAlign.Start)
+        .padding(12)
+        .transition(TransitionEffect.OPACITY.combine(TransitionEffect.move(TransitionEdge.TOP)))
       } else {
-        Text('点击展开')
+        Text('轻点标题展开重点信息')
           .fontSize(12)
-          .fontColor('#AEAEB2')
+          .fontColor('#8E8E93')
           .width('100%')
-          .padding({ bottom: 10 })
+          .padding({ left: 16, right: 16, top: 10, bottom: 10 })
       }
     }
     .width('100%')
-    .backgroundColor('#FF95000D')
+    .backgroundColor(this.withAlpha('#FF9500', 0.05))
     .borderRadius(8)
-    .padding({ left: 12, right: 12 })
+    .clip(true)
+  }
+
+  /** 无异常明细但有印象/所见文案时，仍用同款橙色重点信息条展示纯文本。对齐 iOS 无异常时的 fallback 分支。 */
+  @Builder
+  narrativeDisclosure() {
+    Column({ space: 0 }) {
+      Row({ space: 8 }) {
+        SymbolGlyph($r('sys.symbol.exclamationmark_circle_fill'))
+          .fontSize(15)
+          .fontColor(['#FF9500'])
+        Text('重点信息')
+          .fontSize(14)
+          .fontColor('#FF9500')
+        Blank()
+        SymbolGlyph($r('sys.symbol.chevron_down'))
+          .fontSize(11)
+          .fontColor([this.withAlpha('#FF9500', 0.85)])
+          .rotate({ angle: this.isAbnormalExpanded ? 0 : -90 })
+      }
+      .width('100%')
+      .padding({ left: 16, right: 16, top: 12, bottom: 12 })
+      .backgroundColor(this.withAlpha('#FF9500', 0.05))
+      .border({ width: { bottom: 1 }, color: this.withAlpha('#FF9500', 0.1) })
+      .onClick(() => {
+        this.toggleAbnormalExpanded();
+      })
+
+      if (this.isAbnormalExpanded) {
+        Text(this.narrativeFallback())
+          .fontSize(14)
+          .fontColor('#3A3A3C')
+          .width('100%')
+          .padding(12)
+          .transition(TransitionEffect.OPACITY.combine(TransitionEffect.move(TransitionEdge.TOP)))
+      } else {
+        Text('轻点标题展开重点信息')
+          .fontSize(12)
+          .fontColor('#8E8E93')
+          .width('100%')
+          .padding({ left: 16, right: 16, top: 10, bottom: 10 })
+      }
+    }
+    .width('100%')
+    .backgroundColor(this.withAlpha('#FF9500', 0.05))
+    .borderRadius(8)
+    .clip(true)
+  }
+
+  /** 对齐 iOS `infoRow`：label（caption/次要色）+ value（subheadline/主色）同行展示。 */
+  @Builder
+  infoRow(label: string, value: string) {
+    if (value.length > 0) {
+      Row({ space: 8 }) {
+        Text(label)
+          .fontSize(12)
+          .fontColor('#8E8E93')
+        Text(value)
+          .fontSize(15)
+          .fontColor('#1C1C1E')
+          .layoutWeight(1)
+          .maxLines(1)
+          .textOverflow({ overflow: TextOverflow.Ellipsis })
+      }
+      .width('100%')
+      .alignItems(VerticalAlign.Top)
+    }
+  }
+
+  /** 对齐 iOS `multilineInfoBlock`：label 在上、value 多行在下的纵向信息块。 */
+  @Builder
+  multilineInfoBlock(label: string, value: string) {
+    if (value.length > 0) {
+      Column({ space: 4 }) {
+        Text(label)
+          .fontSize(12)
+          .fontColor('#8E8E93')
+        Text(value)
+          .fontSize(15)
+          .fontColor('#1C1C1E')
+          .width('100%')
+      }
+      .alignItems(HorizontalAlign.Start)
+      .width('100%')
+    }
   }
 
   @Builder
   imagingSection() {
-    Column({ space: 6 }) {
-      if (nonEmptyText(this.report.departmentName).length > 0) {
-        Text(`科室 ${nonEmptyText(this.report.departmentName)}`)
-          .fontSize(13)
-          .fontColor('#3A3A3C')
-          .width('100%')
-      }
-      if (nonEmptyText(this.report.doctorName).length > 0) {
-        Text(`医生 ${nonEmptyText(this.report.doctorName)}`)
-          .fontSize(13)
-          .fontColor('#3A3A3C')
-          .width('100%')
-      }
-      if (nonEmptyText(this.report.impression).length > 0) {
-        Text(nonEmptyText(this.report.impression))
-          .fontSize(13)
-          .fontColor('#1C1C1E')
-          .maxLines(4)
-          .textOverflow({ overflow: TextOverflow.Ellipsis })
-          .width('100%')
-      }
+    Column({ space: 12 }) {
+      this.infoRow('科室', nonEmptyText(this.report.departmentName))
+      this.infoRow('医生', nonEmptyText(this.report.doctorName))
+      this.multilineInfoBlock('检查结论', nonEmptyText(this.report.impression))
     }
+    .alignItems(HorizontalAlign.Start)
     .width('100%')
   }
 
   @Builder
   pathologySection() {
-    Column({ space: 6 }) {
-      if (nonEmptyText(this.report.category).length > 0) {
-        Text(`分类 ${nonEmptyText(this.report.category)}`)
-          .fontSize(13)
-          .fontColor('#3A3A3C')
-          .width('100%')
-      }
-      if (nonEmptyText(this.report.subCategory).length > 0) {
-        Text(`亚类 ${nonEmptyText(this.report.subCategory)}`)
-          .fontSize(13)
-          .fontColor('#3A3A3C')
-          .width('100%')
-      }
-      if (nonEmptyText(this.report.findings).length > 0) {
-        Text(nonEmptyText(this.report.findings))
-          .fontSize(13)
-          .fontColor('#1C1C1E')
-          .maxLines(3)
-          .textOverflow({ overflow: TextOverflow.Ellipsis })
-          .width('100%')
-      }
-      if (nonEmptyText(this.report.impression).length > 0) {
-        Text(nonEmptyText(this.report.impression))
-          .fontSize(13)
-          .fontColor('#1C1C1E')
-          .maxLines(3)
-          .textOverflow({ overflow: TextOverflow.Ellipsis })
-          .width('100%')
-      }
-      if (this.pathologyPreviewRows().length > 0) {
+    Column({ space: 12 }) {
+      this.infoRow('分类', nonEmptyText(this.report.category))
+      this.infoRow('子分类', nonEmptyText(this.report.subCategory))
+      this.multilineInfoBlock('检查所见', nonEmptyText(this.report.findings))
+      this.multilineInfoBlock('检查结论', nonEmptyText(this.report.impression))
+      this.detailItemsSection()
+    }
+    .alignItems(HorizontalAlign.Start)
+    .width('100%')
+  }
+
+  /** 对齐 iOS `detailItemsSection`：病理明细卡片化列表，前 5 条。 */
+  @Builder
+  detailItemsSection() {
+    if (this.pathologyPreviewRows().length > 0) {
+      Column({ space: 8 }) {
+        Text('明细')
+          .fontSize(12)
+          .fontColor('#8E8E93')
+
         ForEach(this.pathologyPreviewRows(), (item: RemoteMedExamDetail) => {
-          Text(`${nonEmptyText(item.itemName)} ${nonEmptyText(item.flag)} ${this.resultText(item)}`)
-            .fontSize(12)
-            .fontColor('#8E8E93')
+          Column({ space: 4 }) {
+            Row({ space: 8 }) {
+              Text(nonEmptyText(item.itemName))
+                .fontSize(15)
+                .fontColor('#1C1C1E')
+                .layoutWeight(1)
+                .maxLines(1)
+                .textOverflow({ overflow: TextOverflow.Ellipsis })
+              Text(nonEmptyText(item.flag).length > 0 ? nonEmptyText(item.flag) : nonEmptyText(item.resultValue))
+                .fontSize(12)
+                .fontWeight(FontWeight.Medium)
+                .fontColor(isPotentiallyAbnormalFlag(item.flag) ? '#FF3B30' : '#8E8E93')
+            }
             .width('100%')
+
+            Text(this.resultText(item))
+              .fontSize(12)
+              .fontColor('#8E8E93')
+              .width('100%')
+          }
+          .alignItems(HorizontalAlign.Start)
+          .width('100%')
+          .padding(10)
+          .backgroundColor('#F2F2F7')
+          .borderRadius(8)
         }, (item: RemoteMedExamDetail) => `path-${item.id}`)
       }
+      .alignItems(HorizontalAlign.Start)
+      .width('100%')
     }
-    .width('100%')
   }
 
   @Builder
   statCell(value: string, label: string, textColor: string, bg: string) {
     Column({ space: 4 }) {
       Text(value)
-        .fontSize(18)
-        .fontWeight(FontWeight.Medium)
+        .fontSize(17)
+        .fontWeight(FontWeight.Bold)
         .fontColor(textColor)
       Text(label)
         .fontSize(11)
-        .fontColor(textColor)
+        .fontColor('#8E8E93')
     }
     .layoutWeight(1)
     .padding({ top: 10, bottom: 10 })
     .backgroundColor(bg)
-    .borderRadius(10)
+    .borderRadius(8)
     .alignItems(HorizontalAlign.Center)
   }
 }

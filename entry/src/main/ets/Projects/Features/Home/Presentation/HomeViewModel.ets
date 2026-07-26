@@ -12,9 +12,11 @@ import {
   RemoteExaminationReportWithAttachments,
   RemoteHealthExamReportWithAttachments,
   RemoteMemberCompleteData,
-  RemoteMemberModuleSetting
+  RemoteMemberModuleSetting,
+  RemoteMedicineBox
 } from '../../../Core/Networking/API/Medical/MedicalSyncAPI';
 import { ExaminationSubitemDetailTarget } from './MedicalLists/ExaminationReports/ExaminationReportDetailSupport';
+import { MedicineBoxMode } from './MedicalLists/MedicineBox/MedicineBoxMode';
 import { Logger } from '../../../../Foundation/Logging/Logger';
 import { LogModule } from '../../../../Foundation/Logging/LogModule';
 import { LogFields } from '../../../../Foundation/Logging/LogEvent';
@@ -46,6 +48,11 @@ export class HomeViewModel {
   /** 检查报告单项 / 完整检验表明细导航目标。 */
   examinationSubitemDetailTarget?: ExaminationSubitemDetailTarget;
   examinationListRevision: number = 0;
+  /** 药箱详情导航目标（NavPathStack 参数载体）。 */
+  medicineBoxDetailTarget?: RemoteMedicineBox;
+  medicineBoxDetailCabinetMode: MedicineBoxMode = MedicineBoxMode.FAMILY;
+  medicineBoxDetailArchiveMode: MedicalArchiveListMode = MedicalArchiveListMode.ACTIVE;
+  medicineBoxListRevision: number = 0;
   private initialLoadStarted: boolean = false;
   private loadGeneration: number = 0;
 
@@ -166,6 +173,15 @@ export class HomeViewModel {
 
   clearExaminationSubitemDetailTarget(): void {
     this.examinationSubitemDetailTarget = undefined;
+  }
+
+  bumpMedicineBoxListRevision(): void {
+    this.medicineBoxListRevision += 1;
+    this.notify();
+  }
+
+  clearMedicineBoxDetailTarget(): void {
+    this.medicineBoxDetailTarget = undefined;
   }
 
   async loadInitialIfNeeded(syncRemote: boolean = true): Promise<void> {

@@ -270,6 +270,7 @@ export class MedicalReportResultSupport {
       }
       list[i].attachmentFileIds = next;
     }
+    viewModel.notifyTypedDraftChanged();
   }
 
   static setReportAttachmentIDs(

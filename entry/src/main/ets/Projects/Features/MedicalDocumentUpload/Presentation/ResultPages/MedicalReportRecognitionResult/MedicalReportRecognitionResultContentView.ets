@@ -8,7 +8,6 @@ import { MedicalReportResultSupport } from './MedicalReportResultSupport';
 import { MedicalReportCardsSectionView } from './MedicalReportResultSections';
 import { MedicalReportMemberConfirmSectionView } from './MedicalReportMemberConfirmSectionView';
 import { MedicalDocumentUnlinkedAttachmentsSectionView } from './MedicalDocumentUnlinkedAttachmentsSectionView';
-import { MedicalDocumentLocalAttachmentItem } from '../MedicalDocumentLocalAttachmentItem';
 import { ExaminationReportCategory } from
   '../../../../Home/Presentation/MedicalLists/ExaminationReports/ExaminationReportCategory';
 
@@ -109,14 +108,6 @@ export struct MedicalReportRecognitionResultContentView {
     }
   }
 
-  private unlinkedAttachmentItems(): MedicalDocumentLocalAttachmentItem[] {
-    const _revision = this.viewModel.typedDraftRevision;
-    return MedicalReportResultSupport.unlinkedAttachments(
-      this.viewModel,
-      MedicalReportResultSupport.reports(this.viewModel)
-    );
-  }
-
   @Builder
   private BodySections() {
     Column({ space: 14 }) {
@@ -137,7 +128,10 @@ export struct MedicalReportRecognitionResultContentView {
         }
       })
       MedicalDocumentUnlinkedAttachmentsSectionView({
-        attachments: this.unlinkedAttachmentItems()
+        attachments: MedicalReportResultSupport.unlinkedAttachments(
+          this.viewModel,
+          MedicalReportResultSupport.reports(this.viewModel)
+        )
       })
       this.SaveReceiptSection()
     }

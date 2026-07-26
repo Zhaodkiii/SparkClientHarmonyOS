@@ -18,6 +18,11 @@ import {
   HealthExamRiskLevel,
   nonEmptyText
 } from '../Shared/HealthExamFlagSupport';
+import {
+  MEDICAL_LIST_ACCENT,
+  MEDICAL_LIST_PAGE_BG,
+  MedicalListPageHeaderChrome
+} from '../Shared/MedicalListPageChrome';
 
 /**
  * 体检详情（只读）。对齐 iOS HealthExamReportDetailPage → HealthExamRecognitionResultView(detail)。
@@ -159,42 +164,37 @@ export struct HealthExamReportDetailPage {
     }
   }
 
+  @Builder
+  private detailTrailing() {
+    Row({ space: 8 }) {
+      Text(this.isArchived ? '取消归档' : '归档')
+        .fontSize(14)
+        .fontColor(MEDICAL_LIST_ACCENT)
+        .onClick(() => {
+          this.showArchiveConfirm = true;
+        })
+      Text('删除')
+        .fontSize(14)
+        .fontColor('#FF3B30')
+        .onClick(() => {
+          this.showDeleteConfirm = true;
+        })
+    }
+  }
+
   build() {
     Column() {
-      Row() {
-        Text('‹ 返回')
-          .fontSize(16)
-          .fontColor('#0A84FF')
-          .onClick(() => {
-            if (this.onBack) {
-              this.onBack();
-            }
-          })
-        Blank()
-        Text(this.titleText())
-          .fontSize(17)
-          .fontWeight(FontWeight.Medium)
-          .maxLines(1)
-          .textOverflow({ overflow: TextOverflow.Ellipsis })
-          .layoutWeight(1)
-          .textAlign(TextAlign.Center)
-        Blank()
-        Text(this.isArchived ? '取消归档' : '归档')
-          .fontSize(14)
-          .fontColor('#0A84FF')
-          .margin({ right: 12 })
-          .onClick(() => {
-            this.showArchiveConfirm = true;
-          })
-        Text('删除')
-          .fontSize(14)
-          .fontColor('#FF3B30')
-          .onClick(() => {
-            this.showDeleteConfirm = true;
-          })
-      }
-      .width('100%')
-      .padding({ left: 16, right: 16, top: 12, bottom: 8 })
+      MedicalListPageHeaderChrome({
+        title: this.titleText(),
+        titleFontSize: 17,
+        onBack: () => {
+          if (this.onBack) {
+            this.onBack();
+          }
+        },
+        trailing: this.detailTrailing,
+        showDivider: false
+      })
 
       if (this.busy) {
         LoadingProgress().width(24).height(24).margin({ bottom: 8 })
@@ -261,7 +261,7 @@ export struct HealthExamReportDetailPage {
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#F2F2F7')
+    .backgroundColor(MEDICAL_LIST_PAGE_BG)
     .bindSheet(this.showDeleteConfirm, this.deleteSheetBuilder, {
       height: SheetSize.FIT_CONTENT,
       dragBar: true,

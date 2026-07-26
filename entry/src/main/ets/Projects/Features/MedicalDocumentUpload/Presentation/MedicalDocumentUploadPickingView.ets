@@ -20,6 +20,37 @@ import { MedicalDocumentUploadViewModel } from './MedicalDocumentUploadViewModel
 import { Logger } from '../../../../Foundation/Logging/Logger';
 import { LogFields } from '../../../../Foundation/Logging/LogEvent';
 import { LogModule } from '../../../../Foundation/Logging/LogModule';
+import {
+  MEDICAL_LIST_DIVIDER,
+  MEDICAL_LIST_HEADER_BG,
+  MEDICAL_LIST_PAGE_BG
+} from '../../Home/Presentation/MedicalLists/Shared/MedicalListPageChrome';
+
+/** 选文件页底部操作栏。独立组件挂载，避免 @BuilderParam this 错位。 */
+@Component
+struct MedicalDocumentUploadPickingBottomBar {
+  @ObjectLink viewModel: MedicalDocumentUploadViewModel;
+
+  build() {
+    Row({ space: 12 }) {
+      Button(MedicalUploadL10n.text('medical.upload.picking.clear'))
+        .layoutWeight(1)
+        .height(52)
+        .fontColor('#333333')
+        .backgroundColor('#E9E9ED')
+        .onClick(() => this.viewModel.setSelectedFiles([]))
+      Button(MedicalUploadL10n.text('medical.upload.start'))
+        .layoutWeight(2)
+        .height(52)
+        .fontColor(Color.White)
+        .backgroundColor(this.viewModel.canStartRecognition ? '#34A853' : '#A8CDB3')
+        .enabled(this.viewModel.canStartRecognition)
+        .onClick(() => this.viewModel.startRecognitionTask())
+    }
+    .padding({ left: 16, right: 16, top: 12, bottom: 12 })
+    .width('100%')
+  }
+}
 
 /**
  * 选文件首屏。对齐参考包 `MedicalDocumentUploadPickingView` 结构：
@@ -125,7 +156,7 @@ export struct MedicalDocumentUploadPickingView {
   }
 
   build() {
-    Stack({ alignContent: Alignment.BottomStart }) {
+    Column() {
       Scroll() {
         Column({ space: 16 }) {
           this.MemberCard()
@@ -146,28 +177,34 @@ export struct MedicalDocumentUploadPickingView {
               .fontColor('#D93025')
           }
 
-          Blank().height(this.hasFiles() ? 84 : 24)
+          Blank().height(this.hasFiles() ? 12 : 0)
         }
         .width('100%')
         .padding({ left: 16, right: 16, top: 16, bottom: 24 })
       }
+      .layoutWeight(1)
       .width('100%')
-      .height('100%')
+      .align(Alignment.Top)
       .scrollBar(BarState.Off)
       .edgeEffect(EdgeEffect.Spring)
 
       if (this.hasFiles()) {
-        Column() {
-          Divider().color('#E5E5EA')
-          this.BottomActionBar()
+        Column({ space: 0 }) {
+          Divider()
+            .width('100%')
+            .height(0.5)
+            .color(MEDICAL_LIST_DIVIDER)
+          MedicalDocumentUploadPickingBottomBar({ viewModel: this.viewModel })
         }
         .width('100%')
-        .backgroundColor(Color.White)
+        .backgroundColor(MEDICAL_LIST_HEADER_BG)
+        .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
       }
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#F2F2F7')
+    .justifyContent(FlexAlign.Start)
+    .backgroundColor(MEDICAL_LIST_PAGE_BG)
     .bindSheet($$this.showPreviewSheet, this.UnifiedFilePreviewBuilder(), {
       height: SheetSize.LARGE,
       onDisappear: () => {
@@ -427,27 +464,6 @@ export struct MedicalDocumentUploadPickingView {
     .width('100%')
     .backgroundColor('#EEF6FF')
     .borderRadius(10)
-  }
-
-  @Builder
-  private BottomActionBar() {
-    Row({ space: 12 }) {
-      Button(MedicalUploadL10n.text('medical.upload.picking.clear'))
-        .layoutWeight(1)
-        .height(52)
-        .fontColor('#333333')
-        .backgroundColor('#E9E9ED')
-        .onClick(() => this.viewModel.setSelectedFiles([]))
-      Button(MedicalUploadL10n.text('medical.upload.start'))
-        .layoutWeight(2)
-        .height(52)
-        .fontColor(Color.White)
-        .backgroundColor(this.viewModel.canStartRecognition ? '#34A853' : '#A8CDB3')
-        .enabled(this.viewModel.canStartRecognition)
-        .onClick(() => this.viewModel.startRecognitionTask())
-    }
-    .padding({ left: 16, right: 16, top: 10, bottom: 12 })
-    .width('100%')
   }
 
   @Builder

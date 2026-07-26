@@ -36,13 +36,8 @@ type MedicalUploadOverallOutcome = 'pending' | 'running' | 'failed' | 'success';
 @Component
 export struct MedicalDocumentUploadProgressView {
   @ObjectLink viewModel: MedicalDocumentUploadViewModel;
-  @StorageProp('topRectHeight') private topRectHeightPx: number = 0;
   /** 对齐 iOS `isShowingOCRText` + OCR 全文 sheet。 */
   @State private isShowingOCRText: boolean = false;
-
-  private topSafeInset(): number {
-    return this.topRectHeightPx > 0 ? this.getUIContext().px2vp(this.topRectHeightPx) : 24;
-  }
 
   private stepLabel(kind: MedicalDocumentUploadFlowStepKind): string {
     return MedicalDocumentUploadFlowStep.label(kind);
@@ -174,12 +169,7 @@ export struct MedicalDocumentUploadProgressView {
       }
       .width('100%')
       .height('100%')
-      .padding({
-        top: this.topSafeInset() + 54,
-        left: 20,
-        right: 20,
-        bottom: 20
-      })
+      .padding({ left: 20, right: 20, bottom: 20 })
 
       if (this.isShowingOCRText) {
         this.OCRTextSheet()

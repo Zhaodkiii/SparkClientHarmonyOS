@@ -156,6 +156,34 @@ export struct ExaminationReportSummaryDetailPage {
     this.dispatchSubitem(target);
   }
 
+  /** 将 #RRGGBB 与 0–1 透明度合成鸿蒙 #AARRGGBB。 */
+  private withAlpha(hex: string, alpha: number): string {
+    const a = Math.round(alpha * 255).toString(16).padStart(2, '0').toUpperCase();
+    return `#${a}${hex.replace('#', '').toUpperCase()}`;
+  }
+
+  /** 对齐 iOS `narrativeCard`：所见/印象使用分类色浅底 + 描边，长文随页面滚动。 */
+  @Builder
+  private narrativeCard(title: string, tint: string, text: string) {
+    Column({ space: 8 }) {
+      Text(title)
+        .fontSize(16)
+        .fontWeight(FontWeight.Medium)
+        .fontColor(tint)
+        .width('100%')
+      Text(text)
+        .fontSize(15)
+        .fontColor('#1C1C1E')
+        .width('100%')
+    }
+    .width('100%')
+    .alignItems(HorizontalAlign.Start)
+    .padding(16)
+    .backgroundColor(this.withAlpha(tint, 0.08))
+    .borderRadius(16)
+    .border({ width: 1, color: this.withAlpha(tint, 0.16) })
+  }
+
   @Builder
   private InfoRow(label: string, value: string) {
     if (value.length > 0) {
@@ -185,7 +213,7 @@ export struct ExaminationReportSummaryDetailPage {
         .width(48)
         .height(48)
         .justifyContent(FlexAlign.Center)
-        .backgroundColor(`${examinationCategoryTint(this.category)}24`)
+        .backgroundColor(this.withAlpha(examinationCategoryTint(this.category), 0.14))
         .borderRadius(12)
 
         Column({ space: 4 }) {
@@ -371,55 +399,24 @@ export struct ExaminationReportSummaryDetailPage {
   }
 
   build() {
-    Scroll() {
-      Column({ space: 12 }) {
-        this.HeaderCard()
+    Column({ space: 16 }) {
+      this.HeaderCard()
 
-        if (nonEmptyText(this.report.findings).length > 0) {
-          Column({ space: 6 }) {
-            Text('所见')
-              .fontSize(13)
-              .fontColor('#0A84FF')
-              .width('100%')
-            Text(nonEmptyText(this.report.findings))
-              .fontSize(14)
-              .fontColor('#1C1C1E')
-              .width('100%')
-          }
-          .width('100%')
-          .padding(16)
-          .backgroundColor('#FFFFFF')
-          .borderRadius(12)
-        }
-
-        if (nonEmptyText(this.report.impression).length > 0
-          && nonEmptyText(this.report.impression) !== nonEmptyText(this.report.findings)) {
-          Column({ space: 6 }) {
-            Text('印象')
-              .fontSize(13)
-              .fontColor('#5856D6')
-              .width('100%')
-            Text(nonEmptyText(this.report.impression))
-              .fontSize(14)
-              .fontColor('#1C1C1E')
-              .width('100%')
-          }
-          .width('100%')
-          .padding(16)
-          .backgroundColor('#FFFFFF')
-          .borderRadius(12)
-        }
-
-        this.AttachmentsSection()
-        this.subitemsSection()
-
-        Blank().height(24)
+      if (nonEmptyText(this.report.findings).length > 0) {
+        this.narrativeCard('所见', '#30B0C7', nonEmptyText(this.report.findings))
       }
-      .width('100%')
-      .padding({ left: 16, right: 16, bottom: 16 })
+
+      if (nonEmptyText(this.report.impression).length > 0
+        && nonEmptyText(this.report.impression) !== nonEmptyText(this.report.findings)) {
+        this.narrativeCard('印象', '#5856D6', nonEmptyText(this.report.impression))
+      }
+
+      this.AttachmentsSection()
+      this.subitemsSection()
+
+      Blank().height(24)
     }
-    .layoutWeight(1)
     .width('100%')
-    .backgroundColor(Color.Transparent)
+    .padding({ left: 16, right: 16, bottom: 24 })
   }
 }

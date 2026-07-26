@@ -9,6 +9,7 @@ import {
 import { ImagingReportDetailPage } from './ImagingReportDetailPage';
 import { LaboratoryReportDetailPage } from './LaboratoryReportDetailPage';
 import { PathologyReportDetailPage } from './PathologyReportDetailPage';
+import { MEDICAL_LIST_PAGE_BG, MedicalDetailPageHeaderChrome } from '../Shared/MedicalListPageChrome';
 
 /**
  * 检查报告分类明细路由页。对齐 iOS `ExaminationReportCategoryDetailPage`：
@@ -57,27 +58,15 @@ export struct ExaminationReportCategoryDetailPage {
 
   build() {
     Column() {
-      Row() {
-        Text('‹ 返回')
-          .fontSize(16)
-          .fontColor('#0A84FF')
-          .onClick(() => {
-            if (this.onBack) {
-              this.onBack();
-            }
-          })
-        Blank()
-        Text(this.titleText())
-          .fontSize(17)
-          .fontWeight(FontWeight.Medium)
-          .maxLines(1)
-          .textOverflow({ overflow: TextOverflow.Ellipsis })
-          .layoutWeight(1)
-          .textAlign(TextAlign.Center)
-        Blank().width(48)
-      }
-      .width('100%')
-      .padding({ left: 16, right: 16, top: 12, bottom: 8 })
+      MedicalDetailPageHeaderChrome({
+        title: this.titleText(),
+        onBack: () => {
+          if (this.onBack) {
+            this.onBack();
+          }
+        },
+        showDivider: false
+      })
 
       Scroll() {
         Column({ space: 12 }) {
@@ -114,6 +103,6 @@ export struct ExaminationReportCategoryDetailPage {
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#F2F2F7')
+    .backgroundColor(MEDICAL_LIST_PAGE_BG)
   }
 }

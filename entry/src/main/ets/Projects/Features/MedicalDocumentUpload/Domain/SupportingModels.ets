@@ -161,6 +161,20 @@ export class MedicalUploadL10n {
         return '选择保存成员';
       case 'medical.upload.result.member.current':
         return '当前';
+      case 'medical.upload.result.medicine_box.member.title':
+        return '确认成员';
+      case 'medical.upload.result.medicine_box.member.subtitle':
+        return '保存后会加入该成员的药箱';
+      case 'medical.upload.result.medicine_box.total_count':
+        return '药品数量';
+      case 'medical.upload.result.medicine_box.section.title':
+        return '药箱药品';
+      case 'medical.upload.result.medicine_box.section.subtitle':
+        return '可逐条编辑识别结果后保存';
+      case 'medical.upload.result.medicine_box.empty':
+        return '暂无药品';
+      case 'medical.upload.presubmit.value.not_filled':
+        return '未填写';
       default:
         return fallback ?? key;
     }

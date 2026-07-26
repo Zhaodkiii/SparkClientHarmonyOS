@@ -1,5 +1,7 @@
+import { MedicineBoxRecognitionDraft } from '../../../../MedicalDocumentUpload/Domain/MedicalDocumentRecognitionDrafts';
 import { MedicineBoxWritePayload } from '../../../../../Core/Networking/API/Medical/MedicalWorkflowAPI';
 import { RemoteMedicineBox, RemoteManagedFile } from '../../../../../Core/Networking/API/Medical/MedicalSyncAPI';
+import { nilIfBlank } from './MedicalFileUtils';
 
 export class MedicineBoxFormModel {
   medicineName: string = '';
@@ -17,6 +19,35 @@ export class MedicineBoxFormModel {
   attachments: RemoteManagedFile[] = [];
   /** 已有附件 id + 本次新上传附件 id，提交前由表单页写入 */
   fileIds: number[] = [];
+
+  static fromRecognitionDraft(draft: MedicineBoxRecognitionDraft): MedicineBoxFormModel {
+    const model = new MedicineBoxFormModel();
+    model.medicineName = draft.medicineName ?? '';
+    model.medicineType = draft.medicineType ?? '';
+    model.brandName = draft.brandName ?? '';
+    model.dosageForm = draft.dosageForm ?? '';
+    model.strength = draft.strength ?? '';
+    model.doseUnit = draft.doseUnit ?? '';
+    model.totalQuantity = draft.totalQuantity ?? '';
+    model.hasExpireDate = (draft.expireDate ?? '').length > 0;
+    model.expireDate = draft.expireDate ?? '';
+    model.notes = draft.notes ?? '';
+    return model;
+  }
+
+  toRecognitionDraft(): MedicineBoxRecognitionDraft {
+    const draft = new MedicineBoxRecognitionDraft();
+    draft.medicineName = nilIfBlank(this.medicineName);
+    draft.medicineType = nilIfBlank(this.medicineType);
+    draft.brandName = nilIfBlank(this.brandName);
+    draft.dosageForm = nilIfBlank(this.dosageForm);
+    draft.strength = nilIfBlank(this.strength);
+    draft.doseUnit = nilIfBlank(this.doseUnit);
+    draft.totalQuantity = nilIfBlank(this.totalQuantity);
+    draft.expireDate = this.hasExpireDate ? nilIfBlank(this.expireDate) : undefined;
+    draft.notes = nilIfBlank(this.notes);
+    return draft;
+  }
 
   static fromBox(box: RemoteMedicineBox): MedicineBoxFormModel {
     const model = new MedicineBoxFormModel();

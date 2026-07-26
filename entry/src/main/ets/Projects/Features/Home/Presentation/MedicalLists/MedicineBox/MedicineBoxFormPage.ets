@@ -1,20 +1,40 @@
 import { Member } from '../../../../../Core/Domain/Entities/Member';
 import { RemoteMedicineBox, RemoteManagedFile } from '../../../../../Core/Networking/API/Medical/MedicalSyncAPI';
 import { SparkMedicalWorkflowAPI } from '../../../../../Core/Networking/API/Medical/MedicalWorkflowAPI';
-import { MedicineBoxFormModel } from './MedicineBoxFormModel';
-import { MedicineBoxMode } from './MedicineBoxMode';
+import { ExaminationReportDraftMapping } from '../ExaminationReports/ExaminationReportDraftMapping';
+import {
+  EXAM_FORM_PAGE_BACKGROUND,
+  ExamFormBindMenuItem,
+  ExamFormBottomBar,
+  ExamFormCard,
+  ExamFormCompactMenuRow,
+  ExamFormDateField,
+  ExamFormMenuCustomRow,
+  ExamFormMenuSection,
+  ExamFormSheetHeader,
+  ExamFormSheetPickerRow,
+  ExamFormTextAreaField,
+  ExamFormTextField,
+  ExamFormToggleRow
+} from '../../../../MedicalRecord/Presentation/NewRecord/Forms/ExamFormFieldSupport';
 import { MedicalAttachmentInput, MedicalDocumentAttachmentUploader } from '../MedicalDocumentAttachmentUploader';
 import { MedicalDocumentFilePickerMenu } from '../MedicalDocumentFilePicker';
+import { MedicineBoxDosageFormCatalog } from './MedicineBoxDosageFormCatalog';
+import { MedicineBoxDosageFormPickerSheet } from './MedicineBoxDosageFormPickerSheet';
+import { MedicineBoxFormModel } from './MedicineBoxFormModel';
+import { MedicineBoxMode } from './MedicineBoxMode';
+import { MedicineBoxTypeCatalog } from './MedicineBoxTypeCatalog';
 
-/** 药品创建/编辑表单 Sheet，对齐 iOS `MedicineBoxFormView` 核心字段 */
+/** 药品创建/编辑表单 Sheet，对齐 iOS `MedicineBoxFormView`。 */
 @Component
 export struct MedicineBoxFormPage {
   existing?: RemoteMedicineBox;
   @Prop entryMemberID: number = 0;
   @Prop mode: MedicineBoxMode = MedicineBoxMode.FAMILY;
+  @Prop allowsHouseholdPublic: boolean = false;
   @Prop members: Member[] = [];
+  @Prop typeOptions: string[] = MedicineBoxTypeCatalog.defaults;
   workflow?: SparkMedicalWorkflowAPI;
-  /** 已用当前账号/generation 装配好的上传器；未注入时不展示附件区（对齐 iOS `fileTransferService != nil` 判断） */
   attachmentUploader?: MedicalDocumentAttachmentUploader;
   onClose?: () => void;
   onSave?: (model: MedicineBoxFormModel, id?: number) => Promise<void>;
@@ -28,6 +48,7 @@ export struct MedicineBoxFormPage {
   @State private quantity: string = '';
   @State private hasExpireDate: boolean = false;
   @State private expireDate: string = '';
+  @State private expireDay: Date = new Date();
   @State private notes: string = '';
   @State private bindingMemberID?: number = undefined;
   @State private submitting: boolean = false;
@@ -35,6 +56,8 @@ export struct MedicineBoxFormPage {
   @State private savedAttachments: RemoteManagedFile[] = [];
   @State private pendingAttachments: MedicalAttachmentInput[] = [];
   @State private attachmentStatus: string = '';
+  @State private sheetKeyboardVisible: boolean = false;
+  @State private showDosageFormSheet: boolean = false;
 
   aboutToAppear(): void {
     if (this.existing) {
@@ -42,18 +65,27 @@ export struct MedicineBoxFormPage {
       this.name = model.medicineName;
       this.type = model.medicineType;
       this.brand = model.brandName;
-      this.dosageForm = model.dosageForm;
+      this.dosageForm = MedicineBoxDosageFormCatalog.storedValue(model.dosageForm);
       this.strength = model.strength;
       this.doseUnit = model.doseUnit;
       this.quantity = model.totalQuantity;
       this.hasExpireDate = model.hasExpireDate;
       this.expireDate = model.expireDate;
+      this.expireDay = ExaminationReportDraftMapping.parseDate(model.expireDate);
       this.notes = model.notes;
       this.bindingMemberID = model.bindingMemberID;
       this.savedAttachments = model.attachments;
-    } else if (this.mode === MedicineBoxMode.PERSONAL) {
+    } else if (!this.allowsHouseholdPublic || this.mode === MedicineBoxMode.PERSONAL) {
       this.bindingMemberID = this.entryMemberID;
     }
+  }
+
+  private navigationTitle(): string {
+    return this.existing ? '编辑药品' : '添加药品';
+  }
+
+  private canSubmit(): boolean {
+    return !this.submitting && this.name.trim().length > 0;
   }
 
   private model(): MedicineBoxFormModel {
@@ -68,17 +100,64 @@ export struct MedicineBoxFormPage {
     model.hasExpireDate = this.hasExpireDate;
     model.expireDate = this.expireDate;
     model.notes = this.notes;
-    model.bindingMemberID = this.bindingMemberID;
+    model.bindingMemberID = this.allowsHouseholdPublic ? this.bindingMemberID : this.entryMemberID;
     model.attachments = this.savedAttachments;
     model.fileIds = this.savedAttachments.map((file: RemoteManagedFile): number => file.id);
     return model;
   }
 
   private uploaderMemberID(): number {
-    if (this.mode === MedicineBoxMode.PERSONAL) {
+    if (!this.allowsHouseholdPublic || this.mode === MedicineBoxMode.PERSONAL) {
       return this.entryMemberID;
     }
     return this.bindingMemberID ?? this.entryMemberID;
+  }
+
+  private ownershipDisplayValue(): string {
+    if (this.bindingMemberID === undefined) {
+      return '家庭公共';
+    }
+    for (let i = 0; i < this.members.length; i++) {
+      if (this.members[i].id === this.bindingMemberID) {
+        return this.members[i].name;
+      }
+    }
+    return '当前成员';
+  }
+
+  private ownershipMenuItems(): ExamFormBindMenuItem[] {
+    const items: ExamFormBindMenuItem[] = [];
+    items.push(new ExamFormBindMenuItem('家庭公共', (): void => {
+      this.bindingMemberID = undefined;
+    }));
+    if (this.members.length === 0) {
+      items.push(new ExamFormBindMenuItem('当前成员', (): void => {
+        this.bindingMemberID = this.entryMemberID;
+      }));
+      return items;
+    }
+    for (let i = 0; i < this.members.length; i++) {
+      const member = this.members[i];
+      items.push(new ExamFormBindMenuItem(member.name, (): void => {
+        this.bindingMemberID = member.id;
+      }));
+    }
+    return items;
+  }
+
+  private typeSections(): ExamFormMenuSection[] {
+    const options = this.typeOptions.length > 0 ? this.typeOptions : MedicineBoxTypeCatalog.defaults;
+    return [
+      new ExamFormMenuSection('', options)
+    ];
+  }
+
+  private keyboardFocusChanged(visible: boolean): void {
+    this.sheetKeyboardVisible = visible;
+  }
+
+  private dismissKeyboard(): void {
+    this.sheetKeyboardVisible = false;
   }
 
   private removePendingAttachment(previewId: string): void {
@@ -87,7 +166,6 @@ export struct MedicineBoxFormPage {
     );
   }
 
-  /** 保存前统一上传待处理附件，返回“已保存 + 新上传”的完整 fileIds；不做 OCR/识别 */
   private async uploadPendingAttachmentsIfNeeded(): Promise<number[]> {
     const existingIds = this.savedAttachments.map((file: RemoteManagedFile): number => file.id);
     const uploader = this.attachmentUploader;
@@ -132,193 +210,302 @@ export struct MedicineBoxFormPage {
   }
 
   @Builder
-  fieldLabel(title: string) {
-    Text(title)
-      .fontSize(13)
-      .fontColor('#666666')
-      .width('100%')
-      .margin({ top: 8, bottom: 4 })
-  }
-
-  @Builder
-  ownership() {
-    if (this.mode === MedicineBoxMode.FAMILY) {
-      Column({ space: 8 }) {
-        Text('药品归属')
-          .fontSize(13)
-          .fontColor('#666666')
-          .width('100%')
-        Row({ space: 8 }) {
-          Button('家庭公共')
-            .fontSize(12)
-            .backgroundColor(this.bindingMemberID === undefined ? '#DCEEFF' : '#F2F2F7')
-            .fontColor('#1C1C1E')
-            .onClick(() => this.bindingMemberID = undefined)
-          Button('当前成员')
-            .fontSize(12)
-            .backgroundColor(this.bindingMemberID === this.entryMemberID ? '#DCEEFF' : '#F2F2F7')
-            .fontColor('#1C1C1E')
-            .onClick(() => this.bindingMemberID = this.entryMemberID)
-        }
-        Text(this.bindingMemberID === undefined ? '家庭公共药品' : `绑定成员 ID：${this.bindingMemberID}`)
-          .fontSize(12)
-          .fontColor('#888888')
-      }
-      .padding(14)
-      .backgroundColor(Color.White)
-      .borderRadius(14)
-      .width('100%')
-    }
-  }
-
-  @Builder
-  attachmentCard() {
-    Column({ space: 10 }) {
-      Text('附件').fontSize(16).fontWeight(FontWeight.Medium).width('100%')
-
-      if (this.savedAttachments.length > 0) {
-        Column({ space: 6 }) {
-          ForEach(this.savedAttachments, (file: RemoteManagedFile) => {
-            Row() {
-              SymbolGlyph($r('sys.symbol.paperclip'))
-                .fontSize(14)
-                .fontColor(['#888888'])
-                .margin({ right: 6 })
-              Text(file.originalName ?? '')
-                .fontSize(13)
-                .fontColor('#333333')
-                .layoutWeight(1)
-                .maxLines(1)
-                .textOverflow({ overflow: TextOverflow.Ellipsis })
-            }
-            .width('100%')
-          }, (file: RemoteManagedFile): string => `saved-${file.id}`)
-        }
-        .width('100%')
-      }
-
-      if (this.pendingAttachments.length > 0) {
-        Column({ space: 6 }) {
-          ForEach(this.pendingAttachments, (item: MedicalAttachmentInput) => {
-            Row() {
-              SymbolGlyph($r('sys.symbol.doc_text'))
-                .fontSize(14)
-                .fontColor(['#0A84FF'])
-                .margin({ right: 6 })
-              Text(item.originalName)
-                .fontSize(13)
-                .fontColor('#333333')
-                .layoutWeight(1)
-                .maxLines(1)
-                .textOverflow({ overflow: TextOverflow.Ellipsis })
-              Text('移除')
-                .fontSize(12)
-                .fontColor('#D93025')
-                .onClick(() => this.removePendingAttachment(item.previewId))
-            }
-            .width('100%')
-          }, (item: MedicalAttachmentInput): string => `pending-${item.previewId}`)
-        }
-        .width('100%')
-      }
-
-      if (this.attachmentStatus.length > 0) {
-        Text(this.attachmentStatus).fontSize(12).fontColor('#888888').width('100%')
-      }
-
-      MedicalDocumentFilePickerMenu({
-        maxSelectionCount: 10,
-        disabled: this.submitting,
-        onFilesSelected: (files: MedicalAttachmentInput[]) => {
-          this.pendingAttachments = this.pendingAttachments.concat(files);
-        }
+  private ownershipSection() {
+    if (this.allowsHouseholdPublic) {
+      ExamFormCard({
+        title: '归属',
+        titleIcon: $r('sys.symbol.person_2_fill')
       }) {
-        Text('＋ 添加报告')
-          .fontSize(13)
-          .fontColor('#0A84FF')
-          .padding({ left: 10, right: 10, top: 6, bottom: 6 })
-          .backgroundColor('#F0F7FF')
-          .borderRadius(8)
+        ExamFormCompactMenuRow({
+          leftTitle: '归属',
+          displayValue: this.ownershipDisplayValue(),
+          placeholder: '家庭公共',
+          menuOptions: this.ownershipMenuItems()
+        })
       }
     }
-    .padding(14)
-    .backgroundColor(Color.White)
-    .borderRadius(14)
+  }
+
+  @Builder
+  private medicineInfoSection() {
+    ExamFormCard({
+      title: '药品信息',
+      titleIcon: $r('sys.symbol.heart_fill')
+    }) {
+      Column({ space: 12 }) {
+        ExamFormTextField({
+          label: '药品名称',
+          placeholder: '如 对乙酰氨基酚或泰诺林',
+          required: true,
+          value: $name,
+          onKeyboardFocus: (visible: boolean): void => {
+            this.keyboardFocusChanged(visible);
+          }
+        })
+
+        ExamFormToggleRow({
+          label: '设置有效期',
+          isOn: $hasExpireDate
+        })
+
+        if (this.hasExpireDate) {
+          ExamFormDateField({
+            label: '有效期',
+            examDay: $expireDay,
+            dateText: $expireDate
+          })
+        }
+
+        ExamFormMenuCustomRow({
+          label: '药品类型',
+          sections: this.typeSections(),
+          customMenuTitle: '自定义类型',
+          customPlaceholder: '输入药品类型',
+          placeholder: '输入药品类型',
+          customAutofocus: false,
+          value: $type,
+          onKeyboardFocus: (visible: boolean): void => {
+            this.keyboardFocusChanged(visible);
+          }
+        })
+
+        ExamFormSheetPickerRow({
+          label: '剂型',
+          displayValue: MedicineBoxDosageFormCatalog.displayString(this.dosageForm),
+          placeholder: '请选择剂型',
+          onTap: (): void => {
+            this.showDosageFormSheet = true;
+          }
+        })
+
+        ExamFormTextField({
+          label: '规格',
+          placeholder: '如 0.5g×24片',
+          value: $strength,
+          onKeyboardFocus: (visible: boolean): void => {
+            this.keyboardFocusChanged(visible);
+          }
+        })
+
+        ExamFormTextField({
+          label: '总数量',
+          placeholder: '如 24',
+          value: $quantity,
+          onKeyboardFocus: (visible: boolean): void => {
+            this.keyboardFocusChanged(visible);
+          }
+        })
+      }
+      .width('100%')
+      .alignItems(HorizontalAlign.Start)
+    }
+  }
+
+  @Builder
+  private moreInfoSection() {
+    ExamFormCard({
+      title: '更多信息',
+      titleIcon: $r('sys.symbol.square_stack_3d')
+    }) {
+      Column({ space: 12 }) {
+        ExamFormTextField({
+          label: '品牌',
+          placeholder: '可选',
+          value: $brand,
+          onKeyboardFocus: (visible: boolean): void => {
+            this.keyboardFocusChanged(visible);
+          }
+        })
+
+        ExamFormTextAreaField({
+          label: '备注',
+          placeholder: '用法、存放位置或注意事项',
+          value: $notes,
+          onKeyboardFocus: (visible: boolean): void => {
+            this.keyboardFocusChanged(visible);
+          }
+        })
+      }
+      .width('100%')
+      .alignItems(HorizontalAlign.Start)
+    }
+  }
+
+  @Builder
+  private attachmentSection() {
+    ExamFormCard({
+      title: '附件',
+      titleIcon: $r('sys.symbol.paperclip')
+    }) {
+      Column({ space: 12 }) {
+        if (this.savedAttachments.length > 0) {
+          Column({ space: 6 }) {
+            Text('已保存')
+              .fontSize(14)
+              .fontWeight(FontWeight.Medium)
+              .fontColor('#8E8E93')
+              .width('100%')
+            ForEach(this.savedAttachments, (file: RemoteManagedFile) => {
+              Row() {
+                SymbolGlyph($r('sys.symbol.paperclip'))
+                  .fontSize(14)
+                  .fontColor(['#8E8E93'])
+                  .margin({ right: 6 })
+                Text(file.originalName ?? '')
+                  .fontSize(15)
+                  .fontColor('#1C1C1E')
+                  .layoutWeight(1)
+                  .maxLines(1)
+                  .textOverflow({ overflow: TextOverflow.Ellipsis })
+              }
+              .width('100%')
+            }, (file: RemoteManagedFile): string => `saved-${file.id}`)
+          }
+          .width('100%')
+        }
+
+        if (this.pendingAttachments.length > 0) {
+          Column({ space: 6 }) {
+            Text('待上传')
+              .fontSize(14)
+              .fontWeight(FontWeight.Medium)
+              .fontColor('#8E8E93')
+              .width('100%')
+            ForEach(this.pendingAttachments, (item: MedicalAttachmentInput) => {
+              Row() {
+                SymbolGlyph($r('sys.symbol.doc_text'))
+                  .fontSize(14)
+                  .fontColor(['#0A84FF'])
+                  .margin({ right: 6 })
+                Text(item.originalName)
+                  .fontSize(15)
+                  .fontColor('#1C1C1E')
+                  .layoutWeight(1)
+                  .maxLines(1)
+                  .textOverflow({ overflow: TextOverflow.Ellipsis })
+                Text('移除')
+                  .fontSize(13)
+                  .fontColor('#FF3B30')
+                  .onClick(() => this.removePendingAttachment(item.previewId))
+              }
+              .width('100%')
+            }, (item: MedicalAttachmentInput): string => `pending-${item.previewId}`)
+          }
+          .width('100%')
+        }
+
+        if (this.attachmentStatus.length > 0) {
+          Text(this.attachmentStatus)
+            .fontSize(13)
+            .fontColor('#8E8E93')
+            .width('100%')
+        }
+
+        MedicalDocumentFilePickerMenu({
+          maxSelectionCount: 10,
+          disabled: this.submitting,
+          onFilesSelected: (files: MedicalAttachmentInput[]) => {
+            this.pendingAttachments = this.pendingAttachments.concat(files);
+          }
+        }) {
+          Row({ space: 6 }) {
+            SymbolGlyph($r('sys.symbol.plus_circle_fill'))
+              .fontSize(16)
+              .fontColor(['#0A84FF'])
+            Text('添加附件')
+              .fontSize(15)
+              .fontWeight(FontWeight.Medium)
+              .fontColor('#0A84FF')
+          }
+          .width('100%')
+          .height(40)
+          .justifyContent(FlexAlign.Center)
+          .backgroundColor(Color.White)
+          .borderRadius(12)
+          .border({ width: 1, color: '#D6E8FF' })
+        }
+      }
+      .width('100%')
+      .alignItems(HorizontalAlign.Start)
+    }
+  }
+
+  @Builder
+  private formBody() {
+    Column({ space: 14 }) {
+      this.ownershipSection()
+      this.medicineInfoSection()
+      this.moreInfoSection()
+      if (this.attachmentUploader) {
+        this.attachmentSection()
+      }
+      if (this.errorText.length > 0) {
+        Text(this.errorText)
+          .fontSize(13)
+          .fontColor('#FF3B30')
+          .width('100%')
+          .padding({ left: 4, right: 4 })
+      }
+      Blank().height(8)
+    }
+    .width('100%')
     .alignItems(HorizontalAlign.Start)
+  }
+
+  @Builder
+  private dosageFormSheetBuilder() {
+    MedicineBoxDosageFormPickerSheet({
+      selectedValue: this.dosageForm,
+      onSelect: (value: string): void => {
+        this.dosageForm = value;
+        this.showDosageFormSheet = false;
+      },
+      onClose: (): void => {
+        this.showDosageFormSheet = false;
+      }
+    })
   }
 
   build() {
     Column() {
-      Row() {
-        Text('取消').fontSize(15).fontColor('#0A84FF').onClick(() => this.onClose?.())
-        Blank()
-        Text(this.existing ? '编辑药品' : '新增药品').fontSize(18).fontWeight(FontWeight.Medium)
-        Blank()
-        Text(this.submitting ? '保存中' : '完成')
-          .fontSize(15)
-          .fontColor(this.submitting ? '#999999' : '#0A84FF')
-          .onClick(() => this.save())
-      }
-      .width('100%')
-      .padding({ left: 16, right: 16, top: 14, bottom: 10 })
+      ExamFormSheetHeader({ title: this.navigationTitle() })
 
       Scroll() {
-        Column({ space: 12 }) {
-          this.ownership()
-          Column() {
-            Text('药品信息').fontSize(16).fontWeight(FontWeight.Medium).width('100%')
-            this.fieldLabel('药品名称 *')
-            TextInput({ text: this.name, placeholder: '请输入药品名称' }).onChange((v: string) => this.name = v)
-            this.fieldLabel('药品类型')
-            TextInput({ text: this.type, placeholder: '例如：抗菌消炎、感冒发烧' }).onChange((v: string) => this.type = v)
-            this.fieldLabel('剂型')
-            TextInput({ text: this.dosageForm, placeholder: '例如：片剂、胶囊' }).onChange((v: string) => this.dosageForm = v)
-            this.fieldLabel('规格')
-            TextInput({ text: this.strength, placeholder: '例如：0.25g' }).onChange((v: string) => this.strength = v)
-            this.fieldLabel('剂量单位')
-            TextInput({ text: this.doseUnit, placeholder: '例如：片、mg' }).onChange((v: string) => this.doseUnit = v)
-            this.fieldLabel('总数量')
-            TextInput({ text: this.quantity, placeholder: '请输入数量' }).onChange((v: string) => this.quantity = v)
-            Row() {
-              Text('设置有效期').fontSize(14).layoutWeight(1)
-              Toggle({ type: ToggleType.Switch, isOn: this.hasExpireDate }).onChange((v: boolean) => this.hasExpireDate = v)
-            }
-            if (this.hasExpireDate) {
-              this.fieldLabel('有效期（YYYY-MM-DD）')
-              TextInput({ text: this.expireDate, placeholder: '例如：2026-12-31' }).onChange((v: string) => this.expireDate = v)
-            }
-          }
-          .padding(14)
-          .backgroundColor(Color.White)
-          .borderRadius(14)
-
-          Column() {
-            Text('更多信息').fontSize(16).fontWeight(FontWeight.Medium).width('100%')
-            this.fieldLabel('品牌')
-            TextInput({ text: this.brand, placeholder: '请输入品牌' }).onChange((v: string) => this.brand = v)
-            this.fieldLabel('备注')
-            TextInput({ text: this.notes, placeholder: '请输入备注' }).onChange((v: string) => this.notes = v)
-          }
-          .padding(14)
-          .backgroundColor(Color.White)
-          .borderRadius(14)
-
-          if (this.attachmentUploader) {
-            this.attachmentCard()
-          }
-
-          if (this.errorText.length > 0) {
-            Text(this.errorText).fontSize(13).fontColor('#D93025').width('100%')
-          }
-          Blank().height(32)
-        }
-        .padding({ left: 16, right: 16, bottom: 24 })
+        this.formBody()
       }
       .layoutWeight(1)
       .scrollBar(BarState.Off)
+      .edgeEffect(EdgeEffect.Spring)
+      .padding({ left: 16, right: 16, top: 4, bottom: 24 })
+
+      ExamFormBottomBar({
+        canSubmit: this.canSubmit(),
+        saveTitle: this.submitting ? '保存中' : '完成',
+        keyboardVisible: this.sheetKeyboardVisible,
+        onKeyboardDone: (): void => {
+          this.dismissKeyboard();
+        },
+        onCancel: (): void => {
+          if (!this.submitting) {
+            this.onClose?.();
+          }
+        },
+        onSave: (): void => {
+          void this.save();
+        }
+      })
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#F2F2F7')
+    .backgroundColor(EXAM_FORM_PAGE_BACKGROUND)
+    .bindSheet($$this.showDosageFormSheet, this.dosageFormSheetBuilder(), {
+      height: SheetSize.MEDIUM,
+      dragBar: true,
+      showClose: false,
+      backgroundColor: EXAM_FORM_PAGE_BACKGROUND,
+      onDisappear: (): void => {
+        this.showDosageFormSheet = false;
+      }
+    })
   }
 }

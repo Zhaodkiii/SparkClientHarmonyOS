@@ -14,8 +14,99 @@ import { HomeViewModel } from '../../HomeViewModel';
 import { ExamReportCard } from './ExamReportCard';
 import { HealthExamDetailLazyLoadController } from '../Shared/HealthExamDetailLazyLoadController';
 import { nonEmptyText } from '../Shared/HealthExamFlagSupport';
+import {
+  MEDICAL_LIST_ACCENT,
+  MEDICAL_LIST_DIVIDER,
+  MEDICAL_LIST_HEADER_BG,
+  MEDICAL_LIST_PAGE_BG,
+  MEDICAL_LIST_SEARCH_FIELD_BG,
+  MedicalListPageHeaderSection
+} from '../Shared/MedicalListPageChrome';
 
 type HealthExamFilterKey = 'all' | 'withSummary' | 'withAttachments';
+
+/** 体检列表头部扩展：搜索 + 筛选。作为页面 build 子组件挂载，避免 @BuilderParam this 错位。 */
+@Component
+struct HealthExamReportsListHeaderExtension {
+  @Link searchText: string;
+  @Link selectedFilter: HealthExamFilterKey;
+  @Prop refreshing: boolean = false;
+  onRefresh: () => void = () => {
+  };
+  onFilterSelected: () => void = () => {
+  };
+
+  build() {
+    Column({ space: 0 }) {
+      TextInput({
+        text: $$this.searchText,
+        placeholder: '搜索机构 / 报告号 / 综述'
+      })
+        .height(36)
+        .fontSize(14)
+        .backgroundColor(MEDICAL_LIST_SEARCH_FIELD_BG)
+        .borderRadius(10)
+        .padding({ left: 12, right: 12 })
+        .margin({ left: 16, right: 16, bottom: 8 })
+
+      Row({ space: 8 }) {
+        this.filterChip('全部', 'all')
+        this.filterChip('有综述', 'withSummary')
+        this.filterChip('有附件', 'withAttachments')
+        Blank()
+        if (this.refreshing) {
+          LoadingProgress().width(18).height(18)
+        } else {
+          Text('刷新')
+            .fontSize(14)
+            .fontColor(MEDICAL_LIST_ACCENT)
+            .onClick(() => {
+              this.onRefresh();
+            })
+        }
+      }
+      .width('100%')
+      .padding({ left: 16, right: 16, bottom: 8 })
+    }
+    .width('100%')
+  }
+
+  @Builder
+  filterChip(title: string, key: HealthExamFilterKey) {
+    Text(title)
+      .fontSize(13)
+      .fontColor(this.selectedFilter === key ? Color.White : '#1C1C1E')
+      .padding({ left: 12, right: 12, top: 6, bottom: 6 })
+      .backgroundColor(this.selectedFilter === key ? '#0A84FF' : '#FFFFFF')
+      .borderRadius(14)
+      .onClick(() => {
+        this.selectedFilter = key;
+        this.onFilterSelected();
+      })
+  }
+}
+
+/** 体检列表底部上传条。作为页面 build 子组件挂载，避免 @BuilderParam this 错位。 */
+@Component
+struct HealthExamReportsListBottomExtension {
+  onUpload: () => void = () => {
+  };
+
+  build() {
+    Text('拍照上传体检报告')
+      .fontSize(15)
+      .fontColor(Color.White)
+      .width('100%')
+      .textAlign(TextAlign.Center)
+      .padding({ top: 14, bottom: 14 })
+      .backgroundColor(MEDICAL_LIST_ACCENT)
+      .borderRadius(12)
+      .onClick(() => {
+        this.onUpload();
+      })
+      .margin({ left: 16, right: 16, top: 12, bottom: 12 })
+  }
+}
 
 /**
  * 体检报告列表。对齐 iOS HealthExamReportsListPage：
@@ -242,60 +333,39 @@ export struct HealthExamReportsListPage {
 
   build() {
     Column() {
-      Row() {
-        Text('‹ 返回')
-          .fontSize(16)
-          .fontColor('#0A84FF')
-          .onClick(() => {
+      Column({ space: 0 }) {
+        MedicalListPageHeaderSection({
+          title: this.archiveMode === MedicalArchiveListMode.ARCHIVED ? '归档体检' : '体检',
+          onBack: () => {
             if (this.onBack) {
               this.onBack();
             }
-          })
-        Blank()
-        Text(this.archiveMode === MedicalArchiveListMode.ARCHIVED ? '归档体检' : '体检')
-          .fontSize(18)
-          .fontWeight(FontWeight.Medium)
-        Blank()
-        Text(this.archiveMode === MedicalArchiveListMode.ARCHIVED ? '活跃' : '归档')
-          .fontSize(14)
-          .fontColor('#0A84FF')
-          .onClick(() => {
+          },
+          trailingText: this.archiveMode === MedicalArchiveListMode.ARCHIVED ? '活跃' : '归档',
+          onTrailing: () => {
             this.toggleArchiveMode();
-          })
-      }
-      .width('100%')
-      .padding({ left: 16, right: 16, top: 12, bottom: 8 })
-
-      TextInput({ text: this.searchText, placeholder: '搜索机构 / 报告号 / 综述' })
-        .height(36)
-        .fontSize(14)
-        .backgroundColor('#FFFFFF')
-        .borderRadius(10)
-        .padding({ left: 12, right: 12 })
-        .margin({ left: 16, right: 16, bottom: 8 })
-        .onChange((value: string) => {
-          this.searchText = value;
-          this.tick += 1;
+          }
         })
-
-      Row({ space: 8 }) {
-        this.filterChip('全部', 'all')
-        this.filterChip('有综述', 'withSummary')
-        this.filterChip('有附件', 'withAttachments')
-        Blank()
-        if (this.refreshing) {
-          LoadingProgress().width(18).height(18)
-        } else {
-          Text('刷新')
-            .fontSize(14)
-            .fontColor('#0A84FF')
-            .onClick(() => {
-              this.refreshReports();
-            })
-        }
+        HealthExamReportsListHeaderExtension({
+          searchText: $searchText,
+          selectedFilter: $selectedFilter,
+          refreshing: this.refreshing,
+          onRefresh: () => {
+            this.refreshReports();
+          },
+          onFilterSelected: () => {
+            this.tick += 1;
+            this.prefetchVisibleDetails();
+          }
+        })
+        Divider()
+          .width('100%')
+          .height(0.5)
+          .color(MEDICAL_LIST_DIVIDER)
       }
       .width('100%')
-      .padding({ left: 16, right: 16, bottom: 8 })
+      .backgroundColor(MEDICAL_LIST_HEADER_BG)
+      .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP])
 
       if (this.errorText.length > 0) {
         Text(this.errorText)
@@ -342,40 +412,24 @@ export struct HealthExamReportsListPage {
       }
 
       if (this.archiveMode === MedicalArchiveListMode.ACTIVE) {
-        Row() {
-          Text('拍照上传体检报告')
-            .fontSize(15)
-            .fontColor(Color.White)
+        Column({ space: 0 }) {
+          Divider()
             .width('100%')
-            .textAlign(TextAlign.Center)
-            .padding({ top: 14, bottom: 14 })
-            .backgroundColor('#0A84FF')
-            .borderRadius(12)
-            .onClick(() => {
+            .height(0.5)
+            .color(MEDICAL_LIST_DIVIDER)
+          HealthExamReportsListBottomExtension({
+            onUpload: () => {
               this.notification?.info('体检上传识别即将接入', undefined, 'home.health_exam.upload');
-            })
+            }
+          })
         }
         .width('100%')
-        .padding({ left: 16, right: 16, bottom: 16 })
+        .backgroundColor(MEDICAL_LIST_HEADER_BG)
+        .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
       }
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#F2F2F7')
-  }
-
-  @Builder
-  filterChip(title: string, key: HealthExamFilterKey) {
-    Text(title)
-      .fontSize(13)
-      .fontColor(this.selectedFilter === key ? Color.White : '#1C1C1E')
-      .padding({ left: 12, right: 12, top: 6, bottom: 6 })
-      .backgroundColor(this.selectedFilter === key ? '#0A84FF' : '#FFFFFF')
-      .borderRadius(14)
-      .onClick(() => {
-        this.selectedFilter = key;
-        this.tick += 1;
-        this.prefetchVisibleDetails();
-      })
+    .backgroundColor(MEDICAL_LIST_PAGE_BG)
   }
 }

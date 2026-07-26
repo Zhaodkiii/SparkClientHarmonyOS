@@ -15,6 +15,11 @@ import { LogModule } from '../../../../../Foundation/Logging/LogModule';
 import { HomeMedicalRouteSupport } from '../HomeMedicalRouteSupport';
 import { HomeMedicalRoutes } from '../HomeMedicalRoutes';
 import { HomeViewModel } from '../HomeViewModel';
+import {
+  MEDICAL_LIST_ACCENT,
+  MEDICAL_LIST_PAGE_BG,
+  MedicalListPageHeaderChrome
+} from './Shared/MedicalListPageChrome';
 
 /**
  * 首页医疗列表：首屏消费 completeData；下拉刷当前资源并字段回写。
@@ -210,63 +215,63 @@ export struct HomeMedicalListPage {
     this.refreshCurrent();
   }
 
-  build() {
-    Column() {
-      Row() {
-        Text('‹ 返回')
-          .fontSize(16)
-          .fontColor('#0A84FF')
+  @Builder
+  private headerTrailing() {
+    Text(this.archiveMode === MedicalArchiveListMode.ARCHIVED ? '活跃' : '归档')
+      .fontSize(14)
+      .fontColor(MEDICAL_LIST_ACCENT)
+      .onClick(() => {
+        this.toggleArchive();
+      })
+  }
+
+  @Builder
+  private headerBody() {
+    Row({ space: 16 }) {
+      Text('刷新')
+        .fontSize(14)
+        .fontColor(MEDICAL_LIST_ACCENT)
+        .onClick(() => {
+          this.refreshCurrent();
+        })
+      if (this.route === HomeMedicalRoutes.MEDICATION_PLANS) {
+        Text('家庭药箱')
+          .fontSize(14)
+          .fontColor(MEDICAL_LIST_ACCENT)
           .onClick(() => {
-            if (this.onBack) {
-              this.onBack();
+            if (this.onOpenFamilyCabinet) {
+              this.onOpenFamilyCabinet();
             }
           })
-        Blank()
-        Text(HomeMedicalRoutes.titleForRoute(this.route))
-          .fontSize(18)
-          .fontWeight(FontWeight.Medium)
-        Blank()
-        Text(this.archiveMode === MedicalArchiveListMode.ARCHIVED ? '活跃' : '归档')
+        Text('个人药箱')
           .fontSize(14)
-          .fontColor('#0A84FF')
+          .fontColor(MEDICAL_LIST_ACCENT)
           .onClick(() => {
-            this.toggleArchive();
+            if (this.onOpenPersonalCabinet) {
+              this.onOpenPersonalCabinet();
+            }
           })
       }
-      .width('100%')
-      .padding({ left: 16, right: 16, top: 12, bottom: 8 })
+      if (this.refreshing) {
+        LoadingProgress().width(20).height(20)
+      }
+    }
+    .width('100%')
+    .padding({ left: 16, right: 16, bottom: 8 })
+  }
 
-      Row({ space: 16 }) {
-        Text('刷新')
-          .fontSize(14)
-          .fontColor('#0A84FF')
-          .onClick(() => {
-            this.refreshCurrent();
-          })
-        if (this.route === HomeMedicalRoutes.MEDICATION_PLANS) {
-          Text('家庭药箱')
-            .fontSize(14)
-            .fontColor('#0A84FF')
-            .onClick(() => {
-              if (this.onOpenFamilyCabinet) {
-                this.onOpenFamilyCabinet();
-              }
-            })
-          Text('个人药箱')
-            .fontSize(14)
-            .fontColor('#0A84FF')
-            .onClick(() => {
-              if (this.onOpenPersonalCabinet) {
-                this.onOpenPersonalCabinet();
-              }
-            })
-        }
-        if (this.refreshing) {
-          LoadingProgress().width(20).height(20)
-        }
-      }
-      .width('100%')
-      .padding({ left: 16, right: 16, bottom: 8 })
+  build() {
+    Column() {
+      MedicalListPageHeaderChrome({
+        title: HomeMedicalRoutes.titleForRoute(this.route),
+        onBack: () => {
+          if (this.onBack) {
+            this.onBack();
+          }
+        },
+        trailing: this.headerTrailing,
+        body: this.headerBody
+      })
 
       if (this.errorText.length > 0) {
         Text(this.errorText)
@@ -313,6 +318,6 @@ export struct HomeMedicalListPage {
     }
     .width('100%')
     .height('100%')
-    .backgroundColor(Color.White)
+    .backgroundColor(MEDICAL_LIST_PAGE_BG)
   }
 }

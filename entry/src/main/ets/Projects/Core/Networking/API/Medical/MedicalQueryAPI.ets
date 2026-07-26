@@ -10,12 +10,24 @@ import {
   RemoteMedicalCaseSummary,
   RemoteMedExamDetail,
   RemoteMedicationPlan,
+  RemoteMedicationRecord,
   RemoteMedicineBox,
   RemoteMember,
   RemoteMemberCompleteData,
   RemoteMemberModuleSetting,
   RemotePrescription
 } from './MedicalSyncAPI';
+
+/** 服药记录 scheduled_at 区间查询。对齐 iOS MedicationRecordScheduledRange。 */
+export class MedicationRecordScheduledRange {
+  scheduledFrom: Date;
+  scheduledToExclusive: Date;
+
+  constructor(scheduledFrom: Date, scheduledToExclusive: Date) {
+    this.scheduledFrom = scheduledFrom;
+    this.scheduledToExclusive = scheduledToExclusive;
+  }
+}
 
 /**
  * 医疗按需查询 API。与 iOS SparkMedicalQueryAPI 对齐。
@@ -183,6 +195,31 @@ export class SparkMedicalQueryAPI {
       this.archivedQuery(this.memberQuery(memberID), archived)
     );
     return RemoteMedicineBox.listFromJson(raw);
+  }
+
+  /**
+   * 查询服药记录。对齐 iOS listMedicationRecords。
+   * scheduledRange 映射 scheduled_from / scheduled_to（开区间上界）。
+   */
+  async listMedicationRecords(
+    memberID?: number,
+    planID?: number,
+    status?: string,
+    scheduledRange?: MedicationRecordScheduledRange
+  ): Promise<RemoteMedicationRecord[]> {
+    const q: QueryItem[] = this.memberQuery(memberID);
+    if (planID !== undefined && planID !== null) {
+      q.push(new QueryItem('plan_id', `${planID}`));
+    }
+    if (status !== undefined && status.length > 0) {
+      q.push(new QueryItem('status', status));
+    }
+    if (scheduledRange !== undefined) {
+      q.push(new QueryItem('scheduled_from', scheduledRange.scheduledFrom.toISOString()));
+      q.push(new QueryItem('scheduled_to', scheduledRange.scheduledToExclusive.toISOString()));
+    }
+    const raw = await this.resources.listResourceRaw(SparkMedicalResourceKind.MEDICATION_RECORDS, q);
+    return RemoteMedicationRecord.listFromJson(raw);
   }
 
   /** 家庭药箱汇总。与 iOS listFamilyMedicineCabinet 对齐。 */
